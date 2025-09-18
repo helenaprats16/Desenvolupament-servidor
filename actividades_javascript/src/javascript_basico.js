@@ -151,6 +151,9 @@ function oddTwoFigures(array) {
 function sortByAge(array) {
   // Esta función recibe un array de objetos como { name: "John", age: 25 }
   // Debe retornar una copia del array ordenada por la edad.
+
+  return [...array].sort((a,b)=> a.age<b.age ? 1 : -1);
+
 }
 
 function sortBy(array, attribute) {
@@ -158,17 +161,23 @@ function sortBy(array, attribute) {
   // Además, recibe el nombre del atributo con el que ordenar
   // Debe retornar una copia del array ordenada por el atributo seleccionado
   // Si el atributo no existe, retornará una copia del array sin ordenar
+  return array.toSorted((a,b)=> a[attribute] < b[attribute] ? -1 : 1);
 }
 
 function getHistogram(array) {
   // Debe retornar un array de 100 elementos con la frecuencia de los números
   // de 0 a 99 de un array de entrada.
+
 }
 
 function createUl(array) {
   // Esta función acepta un array de textos y retorna una lista <ul> en HTML
   // El resultado será una string con el código HTML, no un Element
   // Pista: Puedes usar .map() y .join()
+
+  return `<ul> ${array.map(text => `<li>${text}</li>`).join('')}</ul>`;
+
+
 }
 
 function getMaxSubSum(array) {
@@ -199,6 +208,10 @@ function getWarmHours(climateData, tempThreshold) {
   // Debe retornar un array unidimensional de objetos como este {time: {day: 2, hour: 10}, t: 21, h:50}
   // El array sólo contendrá los objetos en los que la temperatura sea > tempThreshold
   // Pista: puedes usar flatMap y filter
+
+
+
+
 }
 
 function createClimateDataMatrix(climateDataArray) {
