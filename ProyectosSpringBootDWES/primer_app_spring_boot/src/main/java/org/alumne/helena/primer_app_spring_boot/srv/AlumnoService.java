@@ -2,9 +2,9 @@ package org.alumne.helena.primer_app_spring_boot.srv;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.alumne.helena.primer_app_boot.model.Alumno;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,12 +47,16 @@ public class AlumnoService {
 	
 	//encontrar al alumno con el dni pasado por parametro
 	public Alumno encontrarAlumnoPorDni(String dni) {
-		for (Alumno alumno : alumnos) {
-			if (alumno.getDni().equalsIgnoreCase(dni)) {
-				return alumno;
-			}
+		Optional<Alumno> optalumno = alumnos.stream().filter(a -> a.getDni().equals(dni)).findFirst(); 
+		
+		if(optalumno.isPresent()) {
+			return optalumno.get();
+
+		}else {
+			return null;
+
 		}
-		return null;
+		
 				
 	}
 	
