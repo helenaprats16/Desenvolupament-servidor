@@ -1,12 +1,15 @@
 package org.alumne.helena.primer_app_spring_boot.mvc;
 
+
 import org.alumne.helena.primer_app_boot.model.Alumno;
 import org.alumne.helena.primer_app_boot.model.Pagina;
+import org.alumne.helena.primer_app_spring_boot.model.dto.AlumnoEdit;
 import org.alumne.helena.primer_app_spring_boot.srv.AlumnoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,9 +22,8 @@ import jakarta.validation.Valid;
 public class AlumnoController {
 
 	@Autowired
-	AlumnoService alumnoService;
-	Pagina pagina = new Pagina("Llistat alumnes","list-alumno"); 
-	Alumno alumno;
+	private AlumnoService alumnoService;
+	private Pagina pagina = new Pagina("Llistat alumnes","list-alumno"); 
 	
 
 	@RequestMapping(value = "/list-alumno",method = RequestMethod.GET)
@@ -39,7 +41,7 @@ public class AlumnoController {
 	
 	}		
 	@RequestMapping(value="/add-alumno", method = RequestMethod.POST)
-	public String addAlumno(ModelMap model,@Valid Alumno alumno,  BindingResult validacion) {//BindingResult per  comprobar si la validacio te errors o no
+	public String addAlumno(ModelMap model,@Valid @ModelAttribute("alumnoEdit") AlumnoEdit alumno,  BindingResult validacion) {//BindingResult per  comprobar si la validacio te errors o no
 	    String errores = "";
 	    model.addAttribute("pagina", pagina);
 	    if (validacion.hasErrors()) {
@@ -53,21 +55,25 @@ public class AlumnoController {
 	        return "redirect:list-alumno";
 	    } catch (Exception e) {
 	        errores = e.toString();
-	        model.addAttribute("errores", errores);
-	        return "add-alumno";
+	        model.addAttribute("alumno", new Alumno());
+	        
 	    }
+	    
+	    model.addAttribute("errores",errores);
+	    return "add-alumno";
+	    
 	}
 	
 	@RequestMapping(value = "del-alumno",method = RequestMethod.GET)
-	public String borrarAlumno(@RequestParam String dni, ModelMap model) {
-		alumnoService.borrarAlumno(new Alumno(dni));
+	public String borrarAlumno(ModelMap model, @RequestParam String dni) {
+		alumnoService.borrarAlumno(dni);
         return "redirect:list-alumno";
 		
 	}
 	
 	@RequestMapping(value = "/update-alumno",method = RequestMethod.GET)
-	public String updateAlumnos(@RequestParam String dni, ModelMap model) {
-		Alumno alumnoExistente =alumnoService.encontrarAlumnoPorDni(dni);
+	public String updateAlumnos(ModelMap model,@RequestParam String dni) {
+		AlumnoInfo alumnoExistente =alumnoService.encontrarAlumnoInfoPorDni(dni);
 		
 		model.addAttribute("alumno",alumnoExistente);
         return "update-alumno";
@@ -75,7 +81,7 @@ public class AlumnoController {
 	}
 	
 	@RequestMapping(value = "/update-alumno", method = RequestMethod.POST)
-	public String procesaUpdateAlumnos(@Valid Alumno alumno, BindingResult validacion, ModelMap model) {
+	public String procesaUpdateAlumnos( ModelMap model, @Valid AlumnoEdit alumno, BindingResult validacion) {
 	    // validamos els datos
 	    if (validacion.hasErrors()) {
 	        model.addAttribute("errores", "Por favor corrige los errores");
@@ -83,7 +89,7 @@ public class AlumnoController {
 	    }
 
 	    try {
-	        alumnoService.modificaAlumno(alumno);
+	        alumnoService.modificaAlumnoEdit(alumno);
 	        model.clear();
 	        // redirigim al llistat
 	        return "redirect:list-alumno";

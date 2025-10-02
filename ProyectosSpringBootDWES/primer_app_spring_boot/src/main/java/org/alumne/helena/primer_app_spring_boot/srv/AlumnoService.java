@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.alumne.helena.primer_app_boot.model.Alumno;
+import org.alumne.helena.primer_app_spring_boot.model.dto.AlumnoEdit;
+import org.alumne.helena.primer_app_spring_boot.model.dto.AlumnoInfo;
+import org.alumne.helena.primer_app_spring_boot.srv.mapper.AlumnoMapper;
+import org.eclipse.tags.shaded.org.apache.bcel.generic.NEW;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,25 +32,26 @@ public class AlumnoService {
 	}
 
 	//crear metodo para añadir un alumno al servicio
-	public void addAlumno(Alumno alumno) throws Exception{
+	public void addAlumno(AlumnoEdit alumnoEdit) throws Exception{
 		
-		for (Alumno a : alumnos) {
-			if (a.getDni().equalsIgnoreCase(alumno.getDni())) {
-				throw new Exception("El alumno con DNI "+a.getDni()+" ya existe.");
+		
+			if (alumnos.contains(new Alumno(alumnoEdit.getDni()))) {
+				throw new Exception("El alumno con DNI "+alumnoEdit.getDni()+" ya existe.");
 			}
-		} 
+		
 		//si no hi ha duplicat es guarda
-		alumnos.add(alumno);
+		alumnos.add(AlumnoMapper.INSTANCE.alumnoEditToAlumno(alumnoEdit));
 
 	}
 	
-	public void borrarAlumno(Alumno alumno) {
-		alumnos.remove(alumnos.indexOf(alumno));
+	public void borrarAlumno(String dni) {
+		Alumno alumno = encontrarAlumnoPorDni(dni);
+		alumnos.remove(alumno);
 	}
 	
 	
 	//encontrar al alumno con el dni pasado por parametro
-	public Alumno encontrarAlumnoPorDni(String dni) {
+	private Alumno encontrarAlumnoPorDni(String dni) {
 		Optional<Alumno> optalumno = alumnos.stream().filter(a -> a.getDni().equals(dni)).findFirst(); 
 		
 		if(optalumno.isPresent()) {
@@ -62,9 +67,22 @@ public class AlumnoService {
 	
 	
 	//modificar los datos de un alumno
-	public void modificaAlumno(Alumno alumno) {
-		borrarAlumno(alumno);//elimar el alumno existente
-		alumnos.add(alumno);//añadir el nuevo alumno
+	public void modificaAlumnoEdit(AlumnoEdit alumno) {
+		borrarAlumno(alumno.getDni());//elimar el alumno existente
+		alumnos.add(AlumnoMapper.INSTANCE.alumnoEditToAlumno(alumno));
+
+	}
+	
+	public AlumnoEdit encontrarAlumnoEditPorDni(String dni) {
+		Alumno alumno = encontrarAlumnoPorDni(dni);
+		return AlumnoMapper.INSTANCE.alumnoToAlumnoEdit(alumno);
+		
+
+	}
+	
+	public AlumnoInfo encontrarAlumnoInfoPorDni(String dni) {
+		Alumno alumno = encontrarAlumnoPorDni(dni);
+		return AlumnoMapper.INSTANCE.alumnoToAlumnoInfo(alumno);
 
 	}
 	

@@ -11,8 +11,8 @@
     <div class="form-row">
       <div class="col">
         <mvc:label path="dni">Dni:</mvc:label>
-        <mvc:input path="dni" type="text" class="form-control"/>
-        <mvc:errors path="dni" cssClass="text-warning"/>
+        <mvc:input path="dni_alumno" type="text" class="form-control"/>
+        <mvc:errors path="dni_alumno" cssClass="text-warning"/>
       </div>
       <div class="col">
         <mvc:label path="nombre">Nombre:</mvc:label>

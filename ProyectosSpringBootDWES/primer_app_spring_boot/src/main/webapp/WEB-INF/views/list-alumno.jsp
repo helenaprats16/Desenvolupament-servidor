@@ -19,12 +19,14 @@
             <c:forEach items="${alumno}" var="alumno">
                 <tr>
                     <td>&nbsp;${alumno.getDni()}&nbsp;</td>
-                    <td>&nbsp;${alumno.getNombre()}&nbsp;</td>
-                    <td>&nbsp;${alumno.getEdad()}&nbsp;</td>
-                    <td>&nbsp;${alumno.getCiclo()}&nbsp;</td>
-                    <td>&nbsp;${alumno.getCurso()}&nbsp;</td>
+                    <td>&nbsp;${alumno.getnombre()}&nbsp;</td>
+                    <td>&nbsp;${alumno.getciclo()}&nbsp;</td>
+                    <td>&nbsp;${alumno.getcurso()}&nbsp;</td>
+                    <td>&nbsp;${alumno.getedad()}&nbsp;</td>
                     <td><a class="btn btn-success" href="update-alumno?dni=${alumno.getDni()}">Modificar</a></td>
                     <td><a class="btn btn-danger" href="del-alumno?dni=${alumno.getDni()}">Borrar</a></td>
+                	<td><a class="btn btn-success" href="docs-alumno?dni=${alumno.getDni()}">Documentación</a></td>
+                	
                 </tr>
             </c:forEach>
         </tbody>

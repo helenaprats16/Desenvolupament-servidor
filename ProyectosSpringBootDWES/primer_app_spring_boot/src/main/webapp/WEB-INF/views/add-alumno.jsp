@@ -9,7 +9,7 @@
   </p>
   <p> Introduzca los datos del nuevo alumno:</p>
 
-  <mvc:form method="post" action="add-alumno" modelAttribute="alumno">
+  <mvc:form method="post" action="add-alumno" modelAttribute="alumnoEdit">
     <div class="form-row">
       <div class="col">
         <mvc:label path="dni">Dni:</mvc:label>
