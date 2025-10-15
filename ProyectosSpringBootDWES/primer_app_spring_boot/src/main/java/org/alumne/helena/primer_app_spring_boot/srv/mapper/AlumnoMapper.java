@@ -15,7 +15,6 @@ import org.mapstruct.factory.Mappers;
 public interface AlumnoMapper {
 	AlumnoMapper INSTANCE= Mappers.getMapper(AlumnoMapper.class);
 	
-	//Devuelve un objeto de tipo 'AlumnoEdit' a partir de un objeto de tipo 'Alumno'
 	AlumnoEdit alumnoToAlumnoEdit(Alumno alumno);
 	//Devuelve un objeto de tipo 'AlumnoList' a partir de un objeto de tipo 'Alumno'
 	AlumnoList alumnoToAlumnoList(Alumno alumno);

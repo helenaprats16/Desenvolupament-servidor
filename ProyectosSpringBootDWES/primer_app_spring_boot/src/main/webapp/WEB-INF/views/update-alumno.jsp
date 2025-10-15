@@ -37,7 +37,7 @@
         <mvc:errors path="curso" cssClass="text-warning"/>
       </div>
     </div>
-    <br><input type="submit" value="Guardar cambios" class="btn btn-success">
+    <br><input type="submit" value="Modificar" class="btn btn-success">
   </mvc:form>
 </div>
 

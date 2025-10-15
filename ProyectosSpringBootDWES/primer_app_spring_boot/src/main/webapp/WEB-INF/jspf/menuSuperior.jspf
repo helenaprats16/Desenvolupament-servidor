@@ -5,6 +5,7 @@
 		<nav class="nav nav-pills flex-column flex-sm-row">
 			<a class="nav-link ${pagina.getStrBootstrapActiva("login")}" href="login">Home</a>
 			<a class="nav-link  ${pagina.getStrBootstrapActiva("list-alumno")}"  href="list-alumno">Alumnos</a>
+			<a class="nav-link  ${pagina.getStrBootstrapActiva("list-modulos")}"  href="list-modulos">Modulos</a>
 			<a class="nav-link" href="https://aules.edu.gva.es/fp/course/view.php?id=137282">DWES</a>
 		</nav>
  

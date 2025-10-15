@@ -73,8 +73,6 @@ public class AlumnoService {
 	//modificar los datos de un alumno
 	public void modificaAlumnoEdit(@Valid AlumnoEdit alumno) {
 	
-		
-		
 		borrarAlumno(alumno.getDni());//elimar el alumno existente
 		alumnos.add(AlumnoMapper.INSTANCE.alumnoEditToAlumno(alumno));
 

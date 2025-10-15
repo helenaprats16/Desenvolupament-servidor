@@ -27,6 +27,8 @@ public class AlumnoController {
 	private AlumnoService alumnoService;
 	private Pagina pagina = new Pagina("Llistat alumnes","list-alumno"); 
 	
+	
+	/*LLISTAR*/
 
 	@RequestMapping(value = "/list-alumno",method = RequestMethod.GET)
 	public String mostrarLogin(ModelMap map ){
@@ -36,6 +38,10 @@ public class AlumnoController {
 		
 		
 	}
+	
+	/*AFEGIR*/
+	
+	
 	@RequestMapping(value = "/add-alumno",method = RequestMethod.GET)
 	public String mostrarAlumno(ModelMap map ){
 		map.addAttribute("alumnoEdit", new AlumnoEdit());
@@ -67,41 +73,74 @@ public class AlumnoController {
 	    
 	}
 	
-	@RequestMapping(value = "del-alumno",method = RequestMethod.GET)
+	
+	
+	/*BORRAR*/
+	
+	@RequestMapping(value = "/del-alumno",method = RequestMethod.GET)
 	public String borrarAlumno(ModelMap model, @RequestParam String dni) {
+		
+		model.addAttribute("alumno",alumnoService.encontrarAlumnoInfoPorDni(dni));
+        return "delete-alumno";
+		
+	}
+	
+	@RequestMapping(value = "/del-alumnoborrar",method = RequestMethod.GET)
+	public String borrarAlumnoEncontrado(ModelMap model, @RequestParam String dni) {
+		
 		alumnoService.borrarAlumno(dni);
         return "redirect:list-alumno";
 		
 	}
 	
+	
+	/*MODIFICAR*/
+	
+
+	
 	@RequestMapping(value = "/update-alumno",method = RequestMethod.GET)
 	public String updateAlumnos(ModelMap model,@RequestParam String dni) {
-		AlumnoEdit alumnoExistente =alumnoService.encontrarAlumnoEditPorDni(dni);
 		
-		model.addAttribute("alumnoEdit",alumnoExistente);
+		model.addAttribute("alumnoEdit",alumnoService.encontrarAlumnoEditPorDni(dni));
         return "update-alumno";
 		
 	}
 	
+	
+	
+	
+	
 	@RequestMapping(value = "/update-alumno", method = RequestMethod.POST)
-	public String procesaUpdateAlumnos( ModelMap model, @Valid AlumnoEdit alumno, BindingResult validacion) {
-	    // validamos els datos
+	public String procesaUpdateAlumnos( ModelMap model, @Valid @ModelAttribute("alumnoEdit") AlumnoEdit alumno, BindingResult validacion) {
+	    
+		
+		// validamos els datos
 	    if (validacion.hasErrors()) {
 	        model.addAttribute("errores", "Por favor corrige los errores");
 	        return "update-alumno";
 	    }
 
+	    // No guardamos todavía — solo mostramos confirmación
+
+	    model.addAttribute("alumnoEdit",alumno);
+	    return "updateconfirm-alumno";
+	    
+	  }
+
+	
+	
+	@RequestMapping(value = "/updateconfirm-alumno", method = RequestMethod.POST)
+	public String confirmarUpdateAlumnos(ModelMap model, 
+	                                     @ModelAttribute("alumnoEdit") AlumnoEdit alumno) {
 	    try {
 	        alumnoService.modificaAlumnoEdit(alumno);
 	        model.clear();
-	        // redirigim al llistat
 	        return "redirect:list-alumno";
 	    } catch (Exception e) {
 	        model.addAttribute("errores", e.getMessage());
-	        return "update-alumno";
+	        return "updateconfirm-alumno";
 	    }
 	}
-
 	
 	
 	
