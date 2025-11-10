@@ -1,0 +1,27 @@
+###
+## getCiudadesList (Sin paginación - Deprecado)
+GET http://localhost:8090/api/v1/ciudades/59/info HTTP/1.1
+Content-Type: application/json
+
+###
+## getCiudadesListOrderByName
+GET http://localhost:8090/api/v1/ciudades/orden/desc HTTP/1.1
+Content-Type: application/json
+
+###
+## getCiudadInfoById
+GET http://localhost:8090/api/v1/ciudades/56/info HTTP/1.1
+Content-Type: application/json
+
+
+
+###
+## getAllEquipos
+GET http://localhost:8090/api/v1/equipos HTTP/1.1
+Content-Type: application/json
+
+
+###
+## getAllCiudades
+GET http://localhost:8090/api/v1/ciudades HTTP/1.1
+Content-Type: application/json

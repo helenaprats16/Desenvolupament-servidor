@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PrimerAppSpringBootApplication<primer_app_spring_boot>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "org.alumne.helena.primer_app_spring_boot.PrimerAppSpringBootApplication",
+            "projectName": "primer_app_spring_boot",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
