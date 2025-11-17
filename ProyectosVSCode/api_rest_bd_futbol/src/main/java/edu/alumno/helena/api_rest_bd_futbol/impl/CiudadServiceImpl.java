@@ -78,7 +78,7 @@ public class CiudadServiceImpl implements CiudadService{
     public CiudadInfo getCiudadInfoById(@NonNull Long id) {
         CiudadDb ciudadDb = ciudadRepository.findById(id)
         .orElseThrow(()-> new CiudadNotFoundException("Ciutat no trabada amb ::"+id,"Ciudad NOT FOUND "));
-        return (CiudadMapper.INSTANCE.CiudadDbToCiudadInfo(ciudadDb));
+        return (CiudadMapper.INSTANCE.ciudadDbToCiudadInfo(ciudadDb));
     }
 
     

@@ -1,7 +1,9 @@
 package edu.alumno.helena.api_rest_bd_futbol.model.dto;
 
 import java.io.Serializable;
-
+import java.util.HashSet;
+import java.util.Set;
+import edu.alumno.helena.api_rest_bd_futbol.model.dto.EquipoInfoNombre;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,4 +16,5 @@ public class CiudadInfo implements Serializable{
     private Long id;
     private String nombre;
     private String habitantes;
+    private Set<EquipoInfoNombre> equiposInfoNombres = new HashSet<>();
 }
