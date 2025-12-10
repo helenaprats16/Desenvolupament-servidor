@@ -32,7 +32,7 @@ public class EquipoDb implements Serializable{
     @Column(name="`nombrelargo`")
     private String nombreLargo;
     @ManyToOne
-    @JoinColumn(name="ciudad")
+    @JoinColumn(name="ciudad") //define la foreign key [se refiere literalmente al nombre de la columna en la base de datos]
     private CiudadDb ciudadDb;
     @Size(min=10,max=30, message="El nombre del entrenador largo debe de tener un tamaño entre 10 y 30 caracteres")
     private String entrenador;

@@ -1,6 +1,5 @@
 package edu.alumno.helena.api_rest_bd_futbol.controller;
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +18,8 @@ import edu.alumno.helena.api_rest_bd_futbol.model.dto.ListadoRespuesta;
 import edu.alumno.helena.api_rest_bd_futbol.model.dto.PaginaDto;
 import edu.alumno.helena.api_rest_bd_futbol.srv.CiudadService;
 
-@RestController
-@RequestMapping("/api/v1/")
+@RestController //Indica que esta clase es un controlador web
+@RequestMapping("/api/v1/") //defineix el cami base 
 public class CiudadRestController {
 
     private final CiudadService ciudadService;
@@ -29,27 +28,39 @@ public class CiudadRestController {
         this.ciudadService = ciudadService;
     }
 
-    /*DESACTIVAMOS EL ANTIGUO /ciudades
-    @GetMapping("/ciudades")
-    public Collection<CiudadList> getCiudadesList() {
-        return ciudadService.findAllCiudadList();
-    } */
-
 
     @GetMapping("/ciudades")
     public ResponseEntity<ListadoRespuesta<CiudadList>> getAllCiudades(
+            /*Llig el paràmetre de la url
+                nombre -> filter opcional (no s'està usant en el codi, però està preparat)
+                page -> número de pàgina (per defecte es la 0)
+                size -> número d'elements per pàgina (per defecte 3)
+                sort -> camp + direccio per a que es mostre (id,asc per defecte) */
+
             @RequestParam(required = false) String nombre,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size,
             @RequestParam(defaultValue = "id,asc") String[] sort) {
 
-        //Configurar ordenamiento
+        /*Crea un objecte Pageable amb :
+            - Quina pàgina estem
+            - Quants elements mostrar
+            - Com ordernar (ex: "nombre,asc" [per nom ascendentment])
+        */      
         Pageable pageable = PaginationHelper.createPageable(page, size, sort);
 
-        //Recuperar los datos del service
-        PaginaDto<CiudadList> paginaCiudadList = ciudadService.findAllPageCiudadList(pageable);
-        //Preprar respuesta
 
+        //Recuperar los datos del service
+        /*retorna un objecte PaginaDto amb:
+            -pàgina actual
+            -tamany
+            -total d’elements
+            -total de pàgines
+            -llista de ciutats simplificades (CiudadList)        
+        */
+        PaginaDto<CiudadList> paginaCiudadList = ciudadService.findAllPageCiudadList(pageable);
+        
+        //Preprar respuesta
         ListadoRespuesta<CiudadList> response = new ListadoRespuesta<>(
             paginaCiudadList.getNumber(),
             paginaCiudadList.getSize(),

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 
 import edu.alumno.helena.api_rest_bd_futbol.model.dto.CiudadInfo;
 import edu.alumno.helena.api_rest_bd_futbol.model.dto.CiudadList;
-import edu.alumno.helena.api_rest_bd_futbol.model.dto.EquipoList;
 import edu.alumno.helena.api_rest_bd_futbol.model.dto.PaginaDto;
 import io.micrometer.common.lang.NonNull;
 

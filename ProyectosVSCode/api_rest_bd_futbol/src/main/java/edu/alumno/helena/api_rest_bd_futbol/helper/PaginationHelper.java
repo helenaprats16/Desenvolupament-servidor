@@ -3,7 +3,6 @@ package edu.alumno.helena.api_rest_bd_futbol.helper;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;

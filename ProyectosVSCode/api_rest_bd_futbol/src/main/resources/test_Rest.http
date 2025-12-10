@@ -1,5 +1,5 @@
 ###
-## getCiudadesList (Sin paginación - Deprecado)
+## getCiudadesList [Mostrar la ciudad de id 59 que no tiene habitantes ni equipos]
 GET http://localhost:8090/api/v1/ciudades/59/info HTTP/1.1
 Content-Type: application/json
 
@@ -37,3 +37,46 @@ Content-Type: application/json
 ## getAllPorteros
 GET http://localhost:8090/api/v1/porteros HTTP/1.1
 Content-Type: application/json
+
+###
+## getUsuarioInfo
+GET http://localhost:8090/api/usuarios/byNickname/joserra HTTP/1.1
+Content-Type: application/json
+
+
+
+###########
+
+###
+## ComprobarLogin OK
+POST http://localhost:8090/api/usuarios/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "nickname": "joserra",
+    "password": "Passwordjoserra@1"
+
+
+}
+
+
+
+
+###
+## getAllEmpresas
+GET http://localhost:8090/api/v1/empresa HTTP/1.1
+Content-Type: application/json
+
+###
+## getAllEmpresasById
+GET http://localhost:8090/api/v1/empresa/2/info HTTP/1.1
+Content-Type: application/json
+
+###
+## deleteEmpresa
+
+DELETE http://localhost:8090/api/v1/empresa/ HTTP/1.1
+Content-Type: application/json
+
+
+

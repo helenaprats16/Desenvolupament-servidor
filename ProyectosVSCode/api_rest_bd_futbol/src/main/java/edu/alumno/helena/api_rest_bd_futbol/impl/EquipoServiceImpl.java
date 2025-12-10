@@ -39,6 +39,9 @@ public class EquipoServiceImpl implements EquipoService{
                 paginaEquipoDb.getSort());
     }
 
+
+    
+
     
 
 
