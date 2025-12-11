@@ -18,4 +18,8 @@ public interface PeliculaRepository extends JpaRepository<PeliculaDb,Long> {
 
     @NonNull 
     List<PeliculaDb> findPeliculaInfoById(Long id,@NonNull Sort sort);
+
+    @NonNull
+    List<PeliculaDb> findByDirectorId(Long directorId);
+
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.DirectorDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 import edu.alumno.helena.api_rest_bd_pelicula.repository.DirectorRepository;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.DirectorService;
@@ -68,24 +69,24 @@ public class DirectorServiceImpl implements DirectorService {
     @Override
     public DirectorInfo createDirector(DirectorDb directorDb) {
         DirectorDb savedDirector = directorRepository.save(directorDb);
-        return DirectorMapper.INSTANCE.directorDbToDirectorInfo(savedDirector);
+        return directorMapper.directorDbToDirectorInfo(savedDirector);
     }
 
     @Override
-    public DirectorInfo updateDirector(Long id, DirectorDb directorDetails) {
+    public DirectorInfo updateDirector(Long id, DirectorUpdate directorUpdate) {
         DirectorDb director = directorRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Director no encontrado: " + id));
 
         // Actualizar campos
-        if (directorDetails.getNombre() != null) {
-            director.setNombre(directorDetails.getNombre());
+        if (directorUpdate.getNombre() != null) {
+            director.setNombre(directorUpdate.getNombre());
         }
-        if (directorDetails.getNacionalidad() != null) {
-            director.setNacionalidad(directorDetails.getNacionalidad());
+        if (directorUpdate.getNacionalidad() != null) {
+            director.setNacionalidad(directorUpdate.getNacionalidad());
         }
 
         DirectorDb updatedDirector = directorRepository.save(director);
-        return DirectorMapper.INSTANCE.directorDbToDirectorInfo(updatedDirector);
+        return directorMapper.directorDbToDirectorInfo(updatedDirector);
     }
 
     

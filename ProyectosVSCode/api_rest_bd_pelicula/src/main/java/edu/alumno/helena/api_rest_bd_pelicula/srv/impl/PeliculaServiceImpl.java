@@ -22,12 +22,11 @@ public class PeliculaServiceImpl implements PeliculaService {
 
     private final PeliculaRepository peliculaRepository;
     private final PeliculaMapper peliculaMapper;
-    
+
     public PeliculaServiceImpl(PeliculaRepository peliculaRepository, PeliculaMapper peliculaMapper) {
         this.peliculaRepository = peliculaRepository;
         this.peliculaMapper = peliculaMapper;
     }
-
 
     @Override
     public List<PeliculaList> findAllPeliculaList() {
@@ -42,7 +41,8 @@ public class PeliculaServiceImpl implements PeliculaService {
     @Override
     public PeliculaInfo getPeliculaInfoById(@NonNull Long id) {
         PeliculaDb peliculaDb = peliculaRepository.findById(id)
-        .orElseThrow(()-> new PeliculaNotFoundException("Pelicula no trabada amb ::"+id,"Pelicula NOT FOUND "));
+                .orElseThrow(
+                        () -> new PeliculaNotFoundException("Pelicula no trabada amb ::" + id, "Pelicula NOT FOUND "));
         return (peliculaMapper.peliculaDbToPeliculaInfo(peliculaDb));
 
     }
@@ -51,12 +51,48 @@ public class PeliculaServiceImpl implements PeliculaService {
     public PaginaDto<PeliculaList> findAllPagePeliculaList(Pageable pagina) {
         Page<PeliculaDb> paginaPeliculaDb = peliculaRepository.findAll(pagina);
         return new PaginaDto<PeliculaList>(
-                    paginaPeliculaDb.getNumber(),//numero de pagina solicitada
-                    paginaPeliculaDb.getSize(),//tamaño de la pagina
-                    paginaPeliculaDb.getTotalElements(), //total de elementos deveultos por la consulta sin paginacion
-                    paginaPeliculaDb.getTotalPages(),//total de paginas teniendo en cuenta el tamaño de cada pagina
-                    peliculaMapper.peliculasToPeliculaList(paginaPeliculaDb.getContent()),//lista de elemento
-                    paginaPeliculaDb.getSort());//ordenacio de la consulta      
+                paginaPeliculaDb.getNumber(), // numero de pagina solicitada
+                paginaPeliculaDb.getSize(), // tamaño de la pagina
+                paginaPeliculaDb.getTotalElements(), // total de elementos deveultos por la consulta sin paginacion
+                paginaPeliculaDb.getTotalPages(), // total de paginas teniendo en cuenta el tamaño de cada pagina
+                peliculaMapper.peliculasToPeliculaList(paginaPeliculaDb.getContent()), // lista de elemento
+                paginaPeliculaDb.getSort());// ordenacio de la consulta
     }
-    
+
+    public List<PeliculaList> findPeliculasByDirector(Long directorId) {
+
+        List<PeliculaDb> peliculasDb = peliculaRepository.findByDirectorId(directorId);
+        return peliculaMapper.peliculasToPeliculaList(peliculasDb);
+    }
+
+    @Override
+    public PaginaDto<PeliculaList> findByNombreContaining(String nombre, Pageable pageable) {
+        List<PeliculaDb> all = peliculaRepository.findAll();
+        List<PeliculaDb> filtered = all.stream()
+                .filter(p -> p.getTitulo() != null && p.getTitulo().toLowerCase().contains(nombre.toLowerCase()))
+                .toList();
+        int page = pageable.getPageNumber();
+        int size = pageable.getPageSize();
+        int from = page * size;
+        int to = Math.min(from + size, filtered.size());
+        List<PeliculaDb> content = from >= filtered.size() ? List.of() : filtered.subList(from, to);
+        return new PaginaDto<PeliculaList>(page, size, filtered.size(),
+                (int) Math.ceil((double) filtered.size() / size), peliculaMapper.peliculasToPeliculaList(content),
+                pageable.getSort());
+    }
+
+    @Override
+    public List<PeliculaList> findPeliculasFromYear(Integer year) {
+        List<PeliculaDb> all = peliculaRepository.findAll();
+        List<PeliculaDb> filtered = all.stream()
+                .filter(p -> p.getAño() != null && p.getAño().equals(year))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            throw new RuntimeException("No se han encontrado películas del año " + year);
+        }
+
+        return peliculaMapper.peliculasToPeliculaList(filtered);
+    }
+
 }

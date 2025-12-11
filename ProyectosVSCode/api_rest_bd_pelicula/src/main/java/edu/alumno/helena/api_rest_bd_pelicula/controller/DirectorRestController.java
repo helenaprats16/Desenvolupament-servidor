@@ -17,6 +17,7 @@ import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationHelper;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.DirectorDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.ListadoRespuesta;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.DirectorService;
@@ -73,7 +74,7 @@ public class DirectorRestController {
     @PutMapping("/directores/{id}")
     public ResponseEntity<DirectorInfo> updateDirector(
             @PathVariable Long id,
-         @Valid @RequestBody DirectorDb directorUpdate) {  // Usa DirectorUpdate, no DirectorDb
+         @Valid @RequestBody DirectorUpdate directorUpdate) {  
         try {
          DirectorInfo updatedDirector = directorService.updateDirector(id, directorUpdate);
          return ResponseEntity.ok(updatedDirector);
@@ -83,10 +84,11 @@ public class DirectorRestController {
     }
 
     @DeleteMapping("/directores/{id}")
-    public ResponseEntity<Void> deleteDirector(@PathVariable Long id) {
+    public ResponseEntity<String> deleteDirector(@PathVariable Long id) {
         try {
             directorService.deleteDirectorById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Director eliminado");
+
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

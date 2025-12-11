@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.DirectorDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 import io.micrometer.common.lang.NonNull;
 
@@ -21,6 +22,6 @@ public interface DirectorService {
     public DirectorInfo getDirectorInfoById(@NonNull Long id);
     public PaginaDto<DirectorList> findAllPageDirectorList(@NonNull Pageable pagina);
     public DirectorInfo createDirector(DirectorDb directorDb);
-    public DirectorInfo updateDirector(Long id, DirectorDb directorDetails);
+    public DirectorInfo updateDirector(Long id, DirectorUpdate directorUpdate);
     public void deleteDirectorById(@NonNull Long id);
 }

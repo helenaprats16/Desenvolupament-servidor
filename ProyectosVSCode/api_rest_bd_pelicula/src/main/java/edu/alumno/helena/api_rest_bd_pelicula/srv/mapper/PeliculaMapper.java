@@ -3,7 +3,6 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.PeliculaDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfo;
@@ -12,7 +11,7 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
 
 // Usar Spring para inyección del mapper
 @Mapper(componentModel = "spring")
-public  interface PeliculaMapper {
+public interface PeliculaMapper {
 
     @Mapping(source = "director.id", target = "directorId")
     @Mapping(source = "director.nombre", target = "directorNombre")
