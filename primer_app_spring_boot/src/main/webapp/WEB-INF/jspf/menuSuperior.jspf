@@ -1,0 +1,17 @@
+<nav class="navbar navbar-default">
+
+		<a href="https://portal.edu.gva.es/ieslluissimarro/" class="navbar-brand">Simarro</a>
+
+		<nav class="nav nav-pills flex-column flex-sm-row">
+			<a class="nav-link ${pagina.getStrBootstrapActiva("login")}" href="login">Home</a>
+			<a class="nav-link  ${pagina.getStrBootstrapActiva("list-alumno")}"  href="list-alumno">Alumnos</a>
+			<a class="nav-link  ${pagina.getStrBootstrapActiva("list-modulos")}"  href="list-modulos">Modulos</a>
+			<a class="nav-link" href="https://aules.edu.gva.es/fp/course/view.php?id=137282">DWES</a>
+		</nav>
+ 
+ 
+		<ul class="nav navbar-nav navbar-right">
+			<li><a class="nav-link" href="login">Login</a></li>
+		</ul>
+
+	</nav>

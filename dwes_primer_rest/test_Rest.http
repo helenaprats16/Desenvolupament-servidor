@@ -1,0 +1,173 @@
+## getAlumnosList
+GET http://localhost:8080/api/v1/alumnos HTTP/1.1
+Content-Type: application/json
+
+###
+## newAlumnoEdit
+POST http://localhost:8080/api/v1/alumnos HTTP/1.1
+Content-Type: application/json
+
+{
+    "dni": "44444444A",
+    "nombre": "Alumno añadido",
+    "edad": 44,
+    "ciclo": "DAM",
+    "curso": 2,
+    "erasmus": false,
+    "modificado": null,
+    "erasmusChecked": ""
+}
+
+###
+## newAlumnoEdit: No cumple requisitos
+POST http://localhost:8080/api/v1/alumnos HTTP/1.1
+Content-Type: application/json
+
+{
+    "dni": "5A",
+    "nombre": "Alumno incorrecto",
+    "edad": 20,
+    "ciclo": "D",
+    "curso": 1,
+    "erasmus": false,
+    "modificado": null,
+    "erasmusChecked": ""
+}
+
+###
+## getAlumnoEditByDni
+GET http://localhost:8080/api/v1/alumnos/11111111A HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnoEditByDni: Alumno no existe
+GET http://localhost:8080/api/v1/alumnos/8A HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnoInfoByDni
+GET http://localhost:8080/api/v1/alumnos/11111111A/info HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnoInfoByDni: Alumno no existe
+GET http://localhost:8080/api/v1/alumnos/8A/info HTTP/1.1
+Content-Type: application/json
+
+###
+## updateAlumnoEdit
+PUT http://localhost:8080/api/v1/alumnos/44444444A HTTP/1.1
+Content-Type: application/json
+
+{
+    "dni": "44444444A",
+    "nombre": "Alumno modificado",
+    "edad": 55,
+    "ciclo": "DAM",
+    "curso": 2,
+    "erasmus": false,
+    "modificado": null,
+    "erasmusChecked": ""
+}
+
+###
+## updateAlumnoEdit: No cumple requisitos
+PUT http://localhost:8080/api/v1/alumnos/44444444A HTTP/1.1
+Content-Type: application/json
+
+{
+    "dni": "44444444A",
+    "nombre": "A",
+    "edad": 5,
+    "ciclo": "D",
+    "curso": 9,
+    "erasmus": false,
+    "modificado": null,
+    "erasmusChecked": ""
+}
+
+###
+## deleteByDni
+DELETE http://localhost:8080/api/v1/alumnos/44444444A HTTP/1.1
+Content-Type: application/json
+
+###
+## updateAlumnoEdit: Cuando dni no existe
+PUT http://localhost:8080/api/v1/alumnos/44444444A HTTP/1.1
+Content-Type: application/json
+
+{
+    "dni": "99999999Z",
+    "nombre": "Alumno inexistente",
+    "edad": 55,
+    "ciclo": "DAM",
+    "curso": 2,
+    "erasmus": false,
+    "modificado": null,
+    "erasmusChecked": ""
+}
+
+###
+## getAlumnoListDAW
+GET http://localhost:8080/api/v1/alumnosDAW HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnosListDAM
+GET http://localhost:8080/api/v1/alumnosDAM HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnosListCiclo
+GET http://localhost:8080/api/v1/alumnos/ciclo/DAM HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnosListCicloPais
+GET http://localhost:8080/api/v1/alumnos/ciclo/DAM/pais/ES HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnosListByDni
+GET http://localhost:8080/api/v1/alumnoslist/dni/11111111A
+Content-Type: application/json
+
+###
+## getAlumnosListByCiclo
+GET http://localhost:8080/api/v1/alumnoslist/ciclo/DAW/OrderBy/edad/DESC HTTP/1.1
+Content-Type: application/json
+
+###
+## getAlumnosListByHorario
+GET http://localhost:8080/api/v1/alumnoslist/horario/T
+Content-Type: application/json
+
+###
+## getAlumnosListByEdad
+GET http://localhost:8080/api/v1/alumnoslist/edad/21
+Content-Type: application/json
+
+###
+## getAlumnosListByCicloAndPais
+GET http://localhost:8080/api/v1/alumnoslist/cicloandpais/DAM/ES
+Content-Type: application/json
+
+###
+## getAlumnosListByDistinctByNombre
+GET http://localhost:8080/api/v1/alumnoslist/distinctbyciclo/Jose
+Content-Type: application/json
+
+###
+## getAlumnosListByNombreIgnoreCase
+GET http://localhost:8080/api/v1/alumnoslist/nombreignorecase/Jose
+Content-Type: application/json
+
+###
+## getAlumnosListByCicloAndPaisAllIgnoreCase
+GET http://localhost:8080/api/v1/alumnoslist/cicloandpaisallignorecase/DAM/ES
+Content-Type: application/json
+
+###
+## getAlumnosListByNombreLike
+GET http://localhost:8080/api/v1/alumnoslist/nombrelike/Jose
+Content-Type: application/json
