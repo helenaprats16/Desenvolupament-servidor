@@ -2,8 +2,7 @@ package edu.alumno.helena.api_rest_bd_pelicula.srv.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import edu.alumno.helena.api_rest_bd_pelicula.security.FiltroBusqueda;
-import edu.alumno.helena.api_rest_bd_pelicula.security.Operacion;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.FiltroBusqueda;
 import jakarta.persistence.criteria.*;
 
 import java.util.List;
@@ -31,44 +30,44 @@ public class FiltroBusquedaSpecification<T> implements Specification<T> {
             }
 
             String campo = filtro.getCampo();
-            Operacion operador = filtro.getOperador();
+            String operador = filtro.getOperador().toLowerCase();
             String valor = filtro.getValor();
 
             Path<String> campoPath = root.get(campo);
             Predicate predicado;
 
             switch (operador) {
-                case EQ:
+                case "eq":
                     predicado = criteriaBuilder.equal(campoPath, valor);
                     break;
-                case NE:
+                case "ne":
                     predicado = criteriaBuilder.notEqual(campoPath, valor);
                     break;
-                case CONTIENE:
-                case LIKE:
+                case "contiene":
+                case "like":
                     predicado = criteriaBuilder.like(criteriaBuilder.lower(campoPath),
                             "%" + valor.toLowerCase() + "%");
                     break;
-                case EMPIEZA:
-                case STARTSWITH:
+                case "empieza":
+                case "startswith":
                     predicado = criteriaBuilder.like(criteriaBuilder.lower(campoPath),
                             valor.toLowerCase() + "%");
                     break;
-                case TERMINA:
-                case ENDSWITH:
+                case "termina":
+                case "endswith":
                     predicado = criteriaBuilder.like(criteriaBuilder.lower(campoPath),
                             "%" + valor.toLowerCase());
                     break;
-                case GT:
+                case "gt":
                     predicado = criteriaBuilder.greaterThan(campoPath, valor);
                     break;
-                case LT:
+                case "lt":
                     predicado = criteriaBuilder.lessThan(campoPath, valor);
                     break;
-                case GTE:
+                case "gte":
                     predicado = criteriaBuilder.greaterThanOrEqualTo(campoPath, valor);
                     break;
-                case LTE:
+                case "lte":
                     predicado = criteriaBuilder.lessThanOrEqualTo(campoPath, valor);
                     break;
                 default:

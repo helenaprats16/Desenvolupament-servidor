@@ -2,7 +2,6 @@ package edu.alumno.helena.api_rest_bd_pelicula.controller;
 
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.validation.BindingResult;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroCreate;
@@ -23,11 +21,10 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.ListadoRespuesta;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginaResponse;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequestConverter;
-import edu.alumno.helena.api_rest_bd_pelicula.srv.DirectorService;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltrado;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.GeneroService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -43,12 +40,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 public class GeneroRestController {
     
     private final GeneroService generoService ;
-    private final PaginationRequestConverter paginationRequestConverter;
     private final PaginationFactory paginationFactory;
 
-    public GeneroRestController(GeneroService generoService, PaginationRequestConverter paginationRequestConverter, PaginationFactory paginationFactory) {
+    public GeneroRestController(GeneroService generoService, PaginationFactory paginationFactory) {
         this.generoService = generoService;
-        this.paginationRequestConverter = paginationRequestConverter;
         this.paginationFactory = paginationFactory;
     }
    
@@ -75,12 +70,17 @@ public class GeneroRestController {
             @RequestParam(defaultValue = "3") @Min(1) int size,
             @RequestParam(defaultValue = "id,asc") String[] sort) {
         Set<String> allowedSort = Set.of("id", "nombre");
-        PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
+        PaginationRequest paginationRequest = new PaginationRequest(page, size, sort);
         Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
         PaginaDto<GeneroInfo> paginaGenero = (nombre != null && !nombre.isBlank())
                 ? generoService.findByNombreContaining(nombre, pageable)
                 : generoService.findAllPageGeneros(pageable);
-        return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaGenero));
+        return ResponseEntity.ok(new ListadoRespuesta<>(
+            paginaGenero.getNumber(),
+            paginaGenero.getSize(),
+            paginaGenero.getTotalElements(),
+            paginaGenero.getTotalPages(),
+            paginaGenero.getContent()));
     }
 
     /**
@@ -125,8 +125,7 @@ public class GeneroRestController {
         @ApiResponse(responseCode = "409", description = "Nom duplicat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     @PostMapping
-    public ResponseEntity<GeneroInfo> create(@Valid @RequestBody GeneroCreate generoCreate, BindingResult bindingResult) {
-        // Ací pots afegir validació de BindingResult si vols, com a l'exemple
+    public ResponseEntity<GeneroInfo> create(@Valid @RequestBody GeneroCreate generoCreate) {
         GeneroInfo savedGenero = generoService.createGenero(generoCreate);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGenero);
     }
@@ -153,8 +152,7 @@ public class GeneroRestController {
         @ApiResponse(responseCode = "404", description = "No trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<GeneroInfo> update(@PathVariable @Positive Long id, @Valid @RequestBody GeneroUpdate generoUpdate, BindingResult bindingResult) {
-        // Ací pots afegir validació de BindingResult si vols
+    public ResponseEntity<GeneroInfo> update(@PathVariable @Positive Long id, @Valid @RequestBody GeneroUpdate generoUpdate) {
         return ResponseEntity.ok(generoService.updateGenero(id, generoUpdate));
     }
 
@@ -179,5 +177,22 @@ public class GeneroRestController {
     public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
         generoService.deleteGeneroById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Buscar generos", description = "Listado paginado con filtros avanzados")
+    public ResponseEntity<PaginaResponse<GeneroInfo>> searchGenerosGet(
+            @RequestParam(required = false) String[] filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
+        return ResponseEntity.ok(generoService.findAll(filter, page, size, sort));
+    }
+
+    @PostMapping("/search")
+    @Operation(summary = "Buscar generos (POST)", description = "Listado paginado con filtros en body")
+    public ResponseEntity<PaginaResponse<GeneroInfo>> searchGenerosPost(
+            @Valid @RequestBody PeticionListadoFiltrado peticionListadoFiltrado) {
+        return ResponseEntity.ok(generoService.findAll(peticionListadoFiltrado));
     }
 }

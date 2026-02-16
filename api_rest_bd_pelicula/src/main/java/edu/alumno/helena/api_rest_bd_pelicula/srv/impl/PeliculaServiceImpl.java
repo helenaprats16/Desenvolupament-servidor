@@ -9,11 +9,19 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.PeliculaNotFoundException;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.FiltroException;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginaResponse;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PeliculaDependencyResolver;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PeliculaEntityFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltrado;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.DirectorDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.GeneroDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.PeliculaDb;
@@ -21,10 +29,14 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaCreate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculasPorAño;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculasPorGenero;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.repository.PeliculaRepository;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.PeliculaService;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.mapper.PeliculaMapper;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltradoConverter;
+import edu.alumno.helena.api_rest_bd_pelicula.srv.specification.FiltroBusquedaSpecification;
 import io.micrometer.common.lang.NonNull;
 
 @Service
@@ -34,13 +46,18 @@ public class PeliculaServiceImpl implements PeliculaService {
     private final PeliculaMapper peliculaMapper;
     private final PeliculaEntityFactory peliculaEntityFactory;
     private final PeliculaDependencyResolver dependencyResolver;
+    private final PaginationFactory paginationFactory;
+    private final PeticionListadoFiltradoConverter peticionConverter;
 
     public PeliculaServiceImpl(PeliculaRepository peliculaRepository, PeliculaMapper peliculaMapper,
-            PeliculaEntityFactory peliculaEntityFactory, PeliculaDependencyResolver dependencyResolver) {
+            PeliculaEntityFactory peliculaEntityFactory, PeliculaDependencyResolver dependencyResolver,
+            PaginationFactory paginationFactory, PeticionListadoFiltradoConverter peticionConverter) {
         this.peliculaRepository = peliculaRepository;
         this.peliculaMapper = peliculaMapper;
         this.peliculaEntityFactory = peliculaEntityFactory;
         this.dependencyResolver = dependencyResolver;
+        this.paginationFactory = paginationFactory;
+        this.peticionConverter = peticionConverter;
     }
 
     @Override
@@ -70,6 +87,47 @@ public class PeliculaServiceImpl implements PeliculaService {
                 paginaPeliculaDb.getTotalPages(), // total de paginas teniendo en cuenta el tamaño de cada pagina
                 peliculaMapper.peliculasToPeliculaList(paginaPeliculaDb.getContent()), // lista de elemento
                 paginaPeliculaDb.getSort());// ordenacio de la consulta
+    }
+
+    @Override
+    public PaginaResponse<PeliculaList> findAll(String[] filter, int page, int size, String[] sort)
+            throws FiltroException {
+        PeticionListadoFiltrado peticion = peticionConverter.convertFromParams(filter, page, size, sort);
+        return findAll(peticion);
+    }
+
+    @Override
+    public PaginaResponse<PeliculaList> findAll(PeticionListadoFiltrado peticionListadoFiltrado)
+            throws FiltroException {
+        try {
+            Pageable pageable = paginationFactory.createPageable(peticionListadoFiltrado);
+            Specification<PeliculaDb> filtrosBusquedaSpecification =
+                new FiltroBusquedaSpecification<PeliculaDb>(peticionListadoFiltrado.getListaFiltros());
+            Page<PeliculaDb> page = peliculaRepository.findAll(filtrosBusquedaSpecification, pageable);
+            return new PaginaResponse<>(
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                peliculaMapper.peliculasToPeliculaList(page.getContent()),
+                peticionListadoFiltrado.getListaFiltros(),
+                peticionListadoFiltrado.getSort()
+            );
+        } catch (JpaSystemException e) {
+            String cause = "";
+            if (e.getRootCause() != null && e.getCause() != null && e.getCause().getMessage() != null) {
+                cause = e.getRootCause().getMessage();
+            }
+            throw new FiltroException("BAD_OPERATOR_FILTER",
+                "Error: No se puede realizar esa operacion sobre el atributo por el tipo de dato",
+                e.getMessage() + ":" + cause);
+        } catch (PropertyReferenceException e) {
+            throw new FiltroException("BAD_ATTRIBUTE_ORDER",
+                "Error: No existe el nombre del atributo de ordenacion en la tabla", e.getMessage());
+        } catch (InvalidDataAccessApiUsageException e) {
+            throw new FiltroException("BAD_ATTRIBUTE_FILTER",
+                "Error: Posiblemente no existe el atributo en la tabla", e.getMessage());
+        }
     }
 
     @Override
@@ -133,7 +191,15 @@ public class PeliculaServiceImpl implements PeliculaService {
         // Si no existe, simplemente no hace nada (idempotente)
     }
 
-    
+    @Override
+    public List<PeliculasPorAño> getPeliculasAgrupadasPorAño() {
+        return peliculaRepository.findPeliculasAgrupadasPorAño();
+    }
+
+    @Override
+    public List<PeliculasPorGenero> getPeliculasAgrupadasPorGenero() {
+        return peliculaRepository.findPeliculasAgrupadasPorGenero();
+    }
 
    
 

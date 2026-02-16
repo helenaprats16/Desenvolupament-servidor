@@ -22,15 +22,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginaResponse;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequestConverter;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltrado;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.ListadoRespuesta;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaCreate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculasPorAño;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculasPorGenero;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.PeliculaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,9 +53,6 @@ public class PeliculaRestController {
     private PeliculaService peliculaService;
 
     @Autowired
-    private PaginationRequestConverter paginationRequestConverter;
-
-    @Autowired
     private PaginationFactory paginationFactory;
    
 
@@ -72,7 +71,7 @@ public class PeliculaRestController {
                 @RequestParam(defaultValue = "3") @Min(1) int size,
                 @RequestParam(defaultValue = "id,asc") String[] sort) {
             Set<String> allowedSort = Set.of("id", "titulo", "año", "duracion");
-            PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
+                PaginationRequest paginationRequest = new PaginationRequest(page, size, sort);
             Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
             PaginaDto<PeliculaList> paginaPeliculaList;
             if (nombre != null && !nombre.isBlank()) {
@@ -80,7 +79,12 @@ public class PeliculaRestController {
             } else {
                 paginaPeliculaList = peliculaService.findAllPagePeliculaList(pageable);
             }
-            return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaPeliculaList));
+                return ResponseEntity.ok(new ListadoRespuesta<>(
+                        paginaPeliculaList.getNumber(),
+                        paginaPeliculaList.getSize(),
+                        paginaPeliculaList.getTotalElements(),
+                        paginaPeliculaList.getTotalPages(),
+                        paginaPeliculaList.getContent()));
         }
 
 
@@ -210,6 +214,51 @@ public class PeliculaRestController {
         // Elimina por id si existe
         peliculaService.deletePeliculaById(id);
         return ResponseEntity.ok("Pelicula eliminada");
+    }
+
+    @GetMapping("/peliculas/search")
+    @Operation(summary = "Buscar peliculas", description = "Listado paginado con filtros avanzados")
+    public ResponseEntity<PaginaResponse<PeliculaList>> searchPeliculasGet(
+            @RequestParam(required = false) String[] filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
+        return ResponseEntity.ok(peliculaService.findAll(filter, page, size, sort));
+    }
+
+    @PostMapping("/peliculas/search")
+    @Operation(summary = "Buscar peliculas (POST)", description = "Listado paginado con filtros en body")
+    public ResponseEntity<PaginaResponse<PeliculaList>> searchPeliculasPost(
+            @Valid @RequestBody PeticionListadoFiltrado peticionListadoFiltrado) {
+        return ResponseEntity.ok(peliculaService.findAll(peticionListadoFiltrado));
+    }
+
+    /**
+     * CONSULTAS AGRUPADAS - Estadísticas de películas
+     */
+    
+    @GetMapping("/peliculas/estadisticas/por-año")
+    @Operation(summary = "Películas agrupadas por año", 
+               description = "Obtiene estadísticas de películas agrupadas por año de estreno. Incluye COUNT y AVG de duración por año.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas correctamente",
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = PeliculasPorAño.class)))
+    })
+    public ResponseEntity<List<PeliculasPorAño>> getPeliculasAgrupadasPorAño() {
+        return ResponseEntity.ok(peliculaService.getPeliculasAgrupadasPorAño());
+    }
+
+    @GetMapping("/peliculas/estadisticas/por-genero")
+    @Operation(summary = "Películas agrupadas por género", 
+               description = "Obtiene estadísticas de películas agrupadas por género. Incluye COUNT y AVG de duración por género.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas correctamente",
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = PeliculasPorGenero.class)))
+    })
+    public ResponseEntity<List<PeliculasPorGenero>> getPeliculasAgrupadasPorGenero() {
+        return ResponseEntity.ok(peliculaService.getPeliculasAgrupadasPorGenero());
     }
 
 

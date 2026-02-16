@@ -8,11 +8,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -31,28 +28,19 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Login y documentacion Swagger abiertos
                 .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
-                // GET libres
+                // GET libres (consultas publicas)
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                // Escritura de peliculas protegida
-                .requestMatchers(HttpMethod.POST, "/api/v1/peliculas").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/v1/peliculas/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/peliculas/**").authenticated()
-                .anyRequest().authenticated()
+                // POST/PUT/DELETE de peliculas, directores y generos requieren JWT
+                .requestMatchers(HttpMethod.POST, "/api/v1/peliculas", "/api/v1/directores", "/api/v1/generos").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/peliculas/**", "/api/v1/directores/**", "/api/v1/generos/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/peliculas/**", "/api/v1/directores/**", "/api/v1/generos/**").authenticated()
+                // Todo lo demas es publico
+                .anyRequest().permitAll()
             )
             // JWT antes del filtro de usuario/clave
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        // Usuario en memoria para pruebas
-        return new InMemoryUserDetailsManager(
-                User.withUsername("alumno")
-                        .password(passwordEncoder.encode("1234"))
-                        .roles("USER")
-                        .build());
     }
 
     @Bean

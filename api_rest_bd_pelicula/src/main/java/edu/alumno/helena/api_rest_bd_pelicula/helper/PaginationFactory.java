@@ -33,4 +33,9 @@ public class PaginationFactory {
             throw new BadRequestException("SORT_FIELD_INVALID", ex.getMessage());
         }
     }
+
+    public Pageable createPageable(PeticionListadoFiltrado peticionListadoFiltrado) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createPageable'");
+    }
 }

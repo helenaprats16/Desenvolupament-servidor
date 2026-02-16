@@ -20,6 +20,9 @@ import edu.alumno.helena.api_rest_bd_pelicula.exception.DirectorNotFoundExceptio
 import edu.alumno.helena.api_rest_bd_pelicula.exception.PeliculaNotFoundException;
 import edu.alumno.helena.api_rest_bd_pelicula.exception.GeneroNotFoundException;
 import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityAlreadyExistsException;
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityNotFoundException;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.FiltroException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,10 +34,24 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(), null);
     }
 
+    // 404: entitat no trobada (generic)
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiError> handleGenericNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.NOT_FOUND, extractErrorCode(ex, "NOT_FOUND"), ex.getMessage(),
+                request.getRequestURI(), null);
+    }
+
     // 400: paràmetres invàlids (paginació, ordenació, etc.)
     @ExceptionHandler({ BadRequestException.class, IllegalArgumentException.class })
     public ResponseEntity<ApiError> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, extractErrorCode(ex, "BAD_REQUEST"), ex.getMessage(),
+                request.getRequestURI(), null);
+    }
+
+    // 400: errors de filtre
+    @ExceptionHandler(FiltroException.class)
+    public ResponseEntity<ApiError> handleFiltroException(FiltroException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ex.getErrorCode(), ex.getMessage(),
                 request.getRequestURI(), null);
     }
 
@@ -66,6 +83,13 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(), null);
     }
 
+    // 409: entitat ja existeix
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleAlreadyExists(EntityAlreadyExistsException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, ex.getErrorCode(), ex.getMessage(),
+                request.getRequestURI(), null);
+    }
+
     // 500: fallback per a errors no controlats
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleGeneric(RuntimeException ex, HttpServletRequest request) {
@@ -93,6 +117,9 @@ public class GlobalExceptionHandler {
             return notFound.getErrorCode() != null ? notFound.getErrorCode() : fallback;
         }
         if (ex instanceof GeneroNotFoundException notFound) {
+            return notFound.getErrorCode() != null ? notFound.getErrorCode() : fallback;
+        }
+        if (ex instanceof EntityNotFoundException notFound) {
             return notFound.getErrorCode() != null ? notFound.getErrorCode() : fallback;
         }
         return fallback;

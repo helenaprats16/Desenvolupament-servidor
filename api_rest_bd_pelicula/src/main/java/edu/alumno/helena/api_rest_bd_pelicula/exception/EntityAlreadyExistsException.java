@@ -9,7 +9,7 @@ import lombok.Getter;
 @Data
 @Getter
 @AllArgsConstructor
-@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.CONFLICT)
 public class EntityAlreadyExistsException extends RuntimeException {
     
     private final String errorCode;

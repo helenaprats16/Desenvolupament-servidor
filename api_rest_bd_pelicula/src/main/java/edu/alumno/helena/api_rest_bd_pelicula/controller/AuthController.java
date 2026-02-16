@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.alumno.helena.api_rest_bd_pelicula.model.dto.AuthRequest;
-import edu.alumno.helena.api_rest_bd_pelicula.model.dto.AuthResponse;
+import edu.alumno.helena.api_rest_bd_pelicula.security.dto.AuthRequest;
+import edu.alumno.helena.api_rest_bd_pelicula.security.dto.AuthResponse;
 import edu.alumno.helena.api_rest_bd_pelicula.security.jwt.JwtService;
+import edu.alumno.helena.api_rest_bd_pelicula.security.service.UsuarioService;
+import edu.alumno.helena.api_rest_bd_pelicula.security.dto.RegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,18 +37,20 @@ public class AuthController {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
 
 
     /**
      * Endpoint per a registrar un nou usuari (exemple bàsic, adapta-ho al teu model real)
      */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AuthRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Dades incorrectes");
         }
-        // Aquí hauries de fer la lògica de registre (comprovar duplicats, guardar a la BD, etc.)
-        // ...
+        usuarioService.register(request.getNombre(), request.getEmail(), request.getUsername(), request.getPassword());
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuari registrat");
     }
 

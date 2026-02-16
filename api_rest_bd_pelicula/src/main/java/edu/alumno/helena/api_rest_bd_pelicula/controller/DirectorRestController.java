@@ -1,5 +1,6 @@
 package edu.alumno.helena.api_rest_bd_pelicula.controller;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
@@ -16,11 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginaResponse;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequestConverter;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltrado;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorCreate;
+import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorEstadistica;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorUpdate;
@@ -41,15 +43,13 @@ import jakarta.validation.constraints.Positive;
 public class DirectorRestController {
 
     private final DirectorService directorService;
-    private final PaginationRequestConverter paginationRequestConverter;
     private final PaginationFactory paginationFactory;
 
     /**
      * Constructor para inyectar los servicios y helpers necesarios.
      */
-    public DirectorRestController(DirectorService directorService, PaginationRequestConverter paginationRequestConverter, PaginationFactory paginationFactory) {
+    public DirectorRestController(DirectorService directorService, PaginationFactory paginationFactory) {
         this.directorService = directorService;
-        this.paginationRequestConverter = paginationRequestConverter;
         this.paginationFactory = paginationFactory;
     }
 
@@ -68,7 +68,7 @@ public class DirectorRestController {
 
         // Campos permitidos para ordenar
         Set<String> allowedSort = Set.of("id", "nombre", "nacionalidad");
-        PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
+        PaginationRequest paginationRequest = new PaginationRequest(page, size, sort);
         // Paginacion + ordenacion con validacion
         Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
 
@@ -80,7 +80,12 @@ public class DirectorRestController {
             paginaDirectorList = directorService.findAllPageDirectorList(pageable);
         }
 
-        return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaDirectorList));
+        return ResponseEntity.ok(new ListadoRespuesta<>(
+            paginaDirectorList.getNumber(),
+            paginaDirectorList.getSize(),
+            paginaDirectorList.getTotalElements(),
+            paginaDirectorList.getTotalPages(),
+            paginaDirectorList.getContent()));
     }
 
     @GetMapping("/directores/{id}/info")
@@ -132,6 +137,55 @@ public class DirectorRestController {
         // Elimina por id
         directorService.deleteDirectorById(id);
         return ResponseEntity.ok("Director eliminado");
+    }
+
+    @GetMapping("/directores/search")
+    @Operation(summary = "Buscar directores", description = "Listado paginado con filtros avanzados")
+    public ResponseEntity<PaginaResponse<DirectorList>> searchDirectoresGet(
+            @RequestParam(required = false) String[] filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "id,asc") String[] sort) {
+        return ResponseEntity.ok(directorService.findAll(filter, page, size, sort));
+    }
+
+    @PostMapping("/directores/search")
+    @Operation(summary = "Buscar directores (POST)", description = "Listado paginado con filtros en body")
+    public ResponseEntity<PaginaResponse<DirectorList>> searchDirectoresPost(
+            @Valid @RequestBody PeticionListadoFiltrado peticionListadoFiltrado) {
+        return ResponseEntity.ok(directorService.findAll(peticionListadoFiltrado));
+    }
+
+    /**
+     * CONSULTAS AGRUPADAS - Estadísticas de directores
+     */
+    
+    @GetMapping("/directores/estadisticas")
+    @Operation(summary = "Estadísticas de directores", 
+               description = "Obtiene estadísticas de directores con el número total de películas por director. Incluye COUNT agrupado por director.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas correctamente",
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = DirectorEstadistica.class)))
+    })
+    public ResponseEntity<List<DirectorEstadistica>> getEstadisticasDirectores() {
+        return ResponseEntity.ok(directorService.getEstadisticasDirectores());
+    }
+
+    @GetMapping("/directores/estadisticas/minimo")
+    @Operation(summary = "Directores con mínimo de películas", 
+               description = "Obtiene directores que tienen al menos el número mínimo de películas especificado. Usa GROUP BY y HAVING.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Directores filtrados correctamente",
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = DirectorEstadistica.class))),
+        @ApiResponse(responseCode = "400", description = "Parámetro inválido",
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class)))
+    })
+    public ResponseEntity<List<DirectorEstadistica>> getDirectoresConMinimoPeliculas(
+            @RequestParam(defaultValue = "1") @Min(0) Long minPeliculas) {
+        return ResponseEntity.ok(directorService.getDirectoresConMinimoPeliculas(minPeliculas));
     }
 
 }
