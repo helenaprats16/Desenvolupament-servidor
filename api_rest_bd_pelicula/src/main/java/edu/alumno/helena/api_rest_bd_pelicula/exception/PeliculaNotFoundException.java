@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class PeliculaNotFoundException extends RuntimeException {
+
     private static final long serialVersionUID = 1L;
     private String errorCode;
     private String message;

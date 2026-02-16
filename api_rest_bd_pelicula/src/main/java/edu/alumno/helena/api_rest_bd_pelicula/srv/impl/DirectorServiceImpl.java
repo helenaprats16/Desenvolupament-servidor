@@ -1,4 +1,8 @@
+
 package edu.alumno.helena.api_rest_bd_pelicula.srv.impl;
+
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityAlreadyExistsException;
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -13,9 +17,9 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.DirectorDependencyResolver;
 import edu.alumno.helena.api_rest_bd_pelicula.repository.DirectorRepository;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.DirectorService;
-import edu.alumno.helena.api_rest_bd_pelicula.srv.helper.DirectorDependencyResolver;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.mapper.DirectorMapper;
 
 
@@ -45,9 +49,11 @@ public class DirectorServiceImpl implements DirectorService {
         return directorMapper.directorsToDirectorList(directorRepository.findAll(sort));
     }
 
+
     @Override
     public DirectorInfo getDirectorInfoById(Long id) {
-        DirectorDb director = dependencyResolver.requireDirector(id);
+        DirectorDb director = directorRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("DIRECTOR_NOT_FOUND", "Director no encontrado: " + id));
         return directorMapper.directorDbToDirectorInfo(director);
     }
 
@@ -77,14 +83,19 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public void deleteDirectorById(Long id) {
-        if (!directorRepository.existsById(id)) {
-            dependencyResolver.requireDirector(id);
+        if (directorRepository.existsById(id)) {
+            directorRepository.deleteById(id);
         }
-        directorRepository.deleteById(id);
+        // Si no existe, simplemente no hace nada (idempotente)
     }
 
     @Override
     public DirectorInfo createDirector(DirectorCreate directorCreate) {
+        // Comprobamos si ya existe un director con el mismo nombre (asumiendo unicidad por nombre)
+        boolean exists = !directorRepository.findByNombreContainingIgnoreCase(directorCreate.getNombre(), org.springframework.data.domain.Pageable.unpaged()).isEmpty();
+        if (exists) {
+            throw new EntityAlreadyExistsException("DIRECTOR_ALREADY_EXISTS", "El director ya existe con nombre: " + directorCreate.getNombre());
+        }
         DirectorDb directorDb = directorMapper.directorCreateToDirectorDb(directorCreate);
         DirectorDb savedDirector = directorRepository.save(directorDb);
         return directorMapper.directorDbToDirectorInfo(savedDirector);
@@ -92,7 +103,8 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public DirectorInfo updateDirector(Long id, DirectorUpdate directorUpdate) {
-        DirectorDb director = dependencyResolver.requireDirector(id);
+        DirectorDb director = directorRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("DIRECTOR_NOT_FOUND", "Director no encontrado: " + id));
 
         // Actualizar campos
         if (directorUpdate.getNombre() != null) {

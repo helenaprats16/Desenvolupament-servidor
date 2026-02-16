@@ -8,11 +8,11 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
 
 public interface GeneroService {
-
-    PaginaDto<GeneroInfo> findAllPageGeneros(Pageable pagina);
-    PaginaDto<GeneroInfo> findByNombreContaining(String nombre, Pageable pagina);
-    GeneroInfo getGeneroInfoById(Long id);
-    GeneroInfo createGenero(GeneroCreate generoCreate);
-    GeneroInfo updateGenero(Long id, GeneroUpdate generoUpdate);
+    
+    public PaginaDto<GeneroInfo> findAllPageGeneros(Pageable pagina);
+    public PaginaDto<GeneroInfo> findByNombreContaining(String nombre, Pageable pagina);
+    public GeneroInfo getGeneroInfoById(Long id);
+    public GeneroInfo createGenero(GeneroCreate generoCreate);
+    public GeneroInfo updateGenero(Long id, GeneroUpdate generoUpdate);
     void deleteGeneroById(Long id);
 }

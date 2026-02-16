@@ -1,4 +1,8 @@
+
 package edu.alumno.helena.api_rest_bd_pelicula.srv.impl;
+
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityAlreadyExistsException;
+import edu.alumno.helena.api_rest_bd_pelicula.exception.EntityNotFoundException;
 
 import java.util.List;
 
@@ -8,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.PeliculaNotFoundException;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeliculaDependencyResolver;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PeliculaEntityFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.DirectorDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.GeneroDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.PeliculaDb;
@@ -18,8 +24,6 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.repository.PeliculaRepository;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.PeliculaService;
-import edu.alumno.helena.api_rest_bd_pelicula.srv.helper.PeliculaDependencyResolver;
-import edu.alumno.helena.api_rest_bd_pelicula.srv.helper.PeliculaEntityFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.mapper.PeliculaMapper;
 import io.micrometer.common.lang.NonNull;
 
@@ -52,10 +56,8 @@ public class PeliculaServiceImpl implements PeliculaService {
     @Override
     public PeliculaInfo getPeliculaInfoById(@NonNull Long id) {
         PeliculaDb peliculaDb = peliculaRepository.findById(id)
-                .orElseThrow(
-                        () -> new PeliculaNotFoundException("Pelicula no trabada amb ::" + id, "Pelicula NOT FOUND "));
-        return (peliculaMapper.peliculaDbToPeliculaInfo(peliculaDb));
-
+            .orElseThrow(() -> new EntityNotFoundException("PELICULA_NOT_FOUND", "Pelicula no encontrada: " + id));
+        return peliculaMapper.peliculaDbToPeliculaInfo(peliculaDb);
     }
 
     @Override
@@ -93,46 +95,46 @@ public class PeliculaServiceImpl implements PeliculaService {
     public List<PeliculaList> findPeliculasFromYear(Integer year) {
         List<PeliculaDb> peliculas = peliculaRepository.findByAño(year);
         if (peliculas.isEmpty()) {
-            throw new PeliculaNotFoundException("PELICULA_NOT_FOUND",
-                    "No se han encontrado peliculas del ano " + year);
+            throw new EntityNotFoundException("PELICULA_NOT_FOUND", "No se han encontrado peliculas del año " + year);
         }
         return peliculaMapper.peliculasToPeliculaList(peliculas);
     }
 
     @Override
     public PeliculaInfo createPelicula(PeliculaCreate peliculaCreate) {
+        // Comprobamos si ya existe una película con el mismo título (asumiendo unicidad por título)
+        boolean exists = !peliculaRepository.findByTituloContainingIgnoreCase(peliculaCreate.getTitulo(), org.springframework.data.domain.Pageable.unpaged()).isEmpty();
+        if (exists) {
+            throw new EntityAlreadyExistsException("PELICULA_ALREADY_EXISTS", "La película ya existe con título: " + peliculaCreate.getTitulo());
+        }
         DirectorDb director = dependencyResolver.requireDirector(peliculaCreate.getDirectorId());
         GeneroDb genero = dependencyResolver.requireGenero(peliculaCreate.getGeneroId());
-
-        // La factory centraliza el mapeo desde el DTO a la entidad
         PeliculaDb peliculaDb = peliculaEntityFactory.fromCreate(peliculaCreate, director, genero);
         PeliculaDb saved = peliculaRepository.save(peliculaDb);
         return peliculaMapper.peliculaDbToPeliculaInfo(saved);
     }
-
+   
     @Override
     public PeliculaInfo updatePelicula(Long id, PeliculaUpdate peliculaUpdate) {
         PeliculaDb peliculaDb = peliculaRepository.findById(id)
-                .orElseThrow(() -> new PeliculaNotFoundException("PELICULA_NOT_FOUND",
-                        "Pelicula no encontrada: " + id));
-
-        // Director y genero son opcionales en la actualizacion
+            .orElseThrow(() -> new EntityNotFoundException("PELICULA_NOT_FOUND", "Pelicula no encontrada: " + id));
         DirectorDb director = dependencyResolver.optionalDirector(peliculaUpdate.getDirectorId());
         GeneroDb genero = dependencyResolver.optionalGenero(peliculaUpdate.getGeneroId());
-
-        // Aplicamos solo los cambios recibidos en el DTO
         peliculaEntityFactory.applyUpdate(peliculaDb, peliculaUpdate, director, genero);
-
         PeliculaDb updated = peliculaRepository.save(peliculaDb);
         return peliculaMapper.peliculaDbToPeliculaInfo(updated);
     }
-
+  
     @Override
     public void deletePeliculaById(Long id) {
-        if (!peliculaRepository.existsById(id)) {
-            throw new PeliculaNotFoundException("PELICULA_NOT_FOUND", "Pelicula no encontrada: " + id);
+        if (peliculaRepository.existsById(id)) {
+            peliculaRepository.deleteById(id);
         }
-        peliculaRepository.deleteById(id);
+        // Si no existe, simplemente no hace nada (idempotente)
     }
+
+    
+
+   
 
 }

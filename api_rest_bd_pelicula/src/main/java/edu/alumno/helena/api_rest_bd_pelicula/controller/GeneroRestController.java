@@ -2,6 +2,7 @@ package edu.alumno.helena.api_rest_bd_pelicula.controller;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,141 +15,169 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.BindingResult;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
-import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequestConverter;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroCreate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroUpdate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.ListadoRespuesta;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PaginaDto;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
+import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequestConverter;
+import edu.alumno.helena.api_rest_bd_pelicula.srv.DirectorService;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.GeneroService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Generos", description = "Endpoint simple para crear generos")
 @RestController
-@RequestMapping("/api/v1/")
-@Validated
+@RequestMapping("/api/v1/generos")
 public class GeneroRestController {
-
-    private final GeneroService generoService;
+    
+    private final GeneroService generoService ;
     private final PaginationRequestConverter paginationRequestConverter;
     private final PaginationFactory paginationFactory;
 
-    public GeneroRestController(GeneroService generoService,
-            PaginationRequestConverter paginationRequestConverter,
-            PaginationFactory paginationFactory) {
+    public GeneroRestController(GeneroService generoService, PaginationRequestConverter paginationRequestConverter, PaginationFactory paginationFactory) {
         this.generoService = generoService;
         this.paginationRequestConverter = paginationRequestConverter;
         this.paginationFactory = paginationFactory;
     }
+   
+    /**
+     * Obtiene una lista paginada de géneros, con opción de filtrar por nombre y
+     * ordenar por campos permitidos.
+     *
+     * @param nombre Filtro opcional por nombre de género.
+     * @param page   Número de página (por defecto 0).
+     * @param size   Cantidad de elementos por página (por defecto 3).
+     * @param sort   Ordenación en formato campo,dirección (por defecto id,asc).
+     * @return Respuesta con la lista paginada de géneros.
+     */
 
-    @GetMapping("/generos")
-    @Operation(summary = "Listar generos", description = "Lista paginada de generos con filtro por nombre")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Listado correcto"),
-        @ApiResponse(responseCode = "400", description = "Parametros invalidos",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "BadRequest", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"El parametro size debe ser mayor que 0\",\"path\":\"/api/v1/generos\"}")))
+    @Operation(summary = "Llista gèneres", description = "Retorna una llista paginada de gèneres, amb filtre opcional per nom i ordenació.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Llistat correcte", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ListadoRespuesta.class))),
+        @ApiResponse(responseCode = "400", description = "Paràmetres invàlids", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    public ResponseEntity<ListadoRespuesta<GeneroInfo>> getAllGeneros(
+    @GetMapping
+    public ResponseEntity<ListadoRespuesta<GeneroInfo>> list(
             @RequestParam(required = false) String nombre,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "3") @Min(1) int size,
             @RequestParam(defaultValue = "id,asc") String[] sort) {
-
-        // Campos permitidos para ordenar
         Set<String> allowedSort = Set.of("id", "nombre");
         PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
-        // Paginacion + ordenacion con validacion
         Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
-
-        PaginaDto<GeneroInfo> paginaGenero;
-        if (nombre != null && !nombre.isBlank()) {
-            // Filtro simple por nombre
-            paginaGenero = generoService.findByNombreContaining(nombre, pageable);
-        } else {
-            paginaGenero = generoService.findAllPageGeneros(pageable);
-        }
-
+        PaginaDto<GeneroInfo> paginaGenero = (nombre != null && !nombre.isBlank())
+                ? generoService.findByNombreContaining(nombre, pageable)
+                : generoService.findAllPageGeneros(pageable);
         return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaGenero));
     }
 
-    @GetMapping("/generos/{id}")
-    @Operation(summary = "Detalle de genero", description = "Devuelve un genero por id")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Genero encontrado"),
-        @ApiResponse(responseCode = "404", description = "Genero no encontrado",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Genero no encontrado: 999\",\"path\":\"/api/v1/generos/999\"}")))
+    /**
+     * Obtiene el detalle de un género a partir de su ID.
+     *
+     * @param id ID del género a buscar.
+     * @return Detalle del género encontrado.
+     */
+
+    /**
+     * Obté el detall d'un gènere pel seu ID.
+     * @param id ID del gènere
+     * @return Detall del gènere
+     */
+    @Operation(summary = "Detall de gènere", description = "Retorna el detall d'un gènere pel seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Gènere trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = GeneroInfo.class))),
+        @ApiResponse(responseCode = "404", description = "Gènere no trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    public ResponseEntity<GeneroInfo> getGeneroById(@PathVariable @Positive Long id) {
-        // Busca y devuelve el genero
+    @GetMapping("/{id}")
+    public ResponseEntity<GeneroInfo> read(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(generoService.getGeneroInfoById(id));
     }
 
-    @PostMapping("/generos")
-    @Operation(summary = "Crear genero", description = "Crea un genero nuevo")
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Genero creado"),
-        @ApiResponse(responseCode = "400", description = "Validacion incorrecta",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "Validation", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Validacion de campos\",\"path\":\"/api/v1/generos\",\"fieldErrors\":{\"nombre\":\"El nombre no puede ser vacio\"}}"))),
-        @ApiResponse(responseCode = "409", description = "Nombre duplicado",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "Conflict", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":409,\"error\":\"Conflict\",\"message\":\"Violacion de integridad de datos\",\"path\":\"/api/v1/generos\"}")))
+    /**
+     * Crea un nuevo género en el sistema.
+     *
+     * @param generoCreate Objeto con los datos del género a crear.
+     * @return Género creado correctamente.
+     */
+
+    /**
+     * Crea un nou gènere.
+     * @param generoCreate Dades del gènere
+     * @param bindingResult Resultat de la validació
+     * @return Gènere creat
+     */
+    @Operation(summary = "Crea un nou gènere")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Creat correctament", content = @Content(mediaType = "application/json", schema = @Schema(implementation = GeneroInfo.class))),
+        @ApiResponse(responseCode = "400", description = "Error de validació", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "409", description = "Nom duplicat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    public ResponseEntity<GeneroInfo> createGenero(@Valid @RequestBody GeneroCreate generoCreate) {
-        // Alta de genero
+    @PostMapping
+    public ResponseEntity<GeneroInfo> create(@Valid @RequestBody GeneroCreate generoCreate, BindingResult bindingResult) {
+        // Ací pots afegir validació de BindingResult si vols, com a l'exemple
         GeneroInfo savedGenero = generoService.createGenero(generoCreate);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGenero);
     }
 
-    @PutMapping("/generos/{id}")
-    @Operation(summary = "Actualizar genero", description = "Actualiza un genero existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Genero actualizado"),
-        @ApiResponse(responseCode = "404", description = "Genero no encontrado",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Genero no encontrado: 999\",\"path\":\"/api/v1/generos/999\"}")))
+    /**
+     * Actualiza los datos de un género existente.
+     *
+     * @param id           ID del género a actualizar.
+     * @param generoUpdate Objeto con los datos actualizados.
+     * @return Género actualizado correctamente.
+     */
+
+    /**
+     * Actualitza un gènere existent.
+     * @param id ID del gènere
+     * @param generoUpdate Dades noves
+     * @param bindingResult Resultat de la validació
+     * @return Gènere actualitzat
+     */
+    @Operation(summary = "Actualitza un gènere")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Actualitzat correctament", content = @Content(mediaType = "application/json", schema = @Schema(implementation = GeneroInfo.class))),
+        @ApiResponse(responseCode = "400", description = "Error de validació", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "404", description = "No trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    public ResponseEntity<GeneroInfo> updateGenero(
-            @PathVariable @Positive Long id,
-            @Valid @RequestBody GeneroUpdate generoUpdate) {
-        // Actualiza campos editables
+    @PutMapping("/{id}")
+    public ResponseEntity<GeneroInfo> update(@PathVariable @Positive Long id, @Valid @RequestBody GeneroUpdate generoUpdate, BindingResult bindingResult) {
+        // Ací pots afegir validació de BindingResult si vols
         return ResponseEntity.ok(generoService.updateGenero(id, generoUpdate));
     }
 
-    @DeleteMapping("/generos/{id}")
-    @Operation(summary = "Borrar genero", description = "Elimina un genero por id")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Genero eliminado"),
-        @ApiResponse(responseCode = "404", description = "Genero no encontrado",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Genero no encontrado: 999\",\"path\":\"/api/v1/generos/999\"}")))
+    /**
+     * Elimina un género del sistema a partir de su ID.
+     *
+     * @param id ID del género a eliminar.
+     * @return Mensaje de confirmación de borrado.
+     */
+
+    /**
+     * Elimina un gènere pel seu ID.
+     * @param id ID del gènere
+     * @return Sense contingut si s'elimina correctament
+     */
+    @Operation(summary = "Elimina un gènere")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Eliminat", content = @Content),
+        @ApiResponse(responseCode = "404", description = "No trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
-    public ResponseEntity<String> deleteGenero(@PathVariable @Positive Long id) {
-        // Elimina por id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
         generoService.deleteGeneroById(id);
-        return ResponseEntity.ok("Genero eliminado");
+        return ResponseEntity.noContent().build();
     }
 }

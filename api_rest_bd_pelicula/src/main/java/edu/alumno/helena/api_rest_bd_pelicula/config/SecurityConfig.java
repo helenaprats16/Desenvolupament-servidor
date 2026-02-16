@@ -16,7 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import edu.alumno.helena.api_rest_bd_pelicula.security.JwtAuthenticationFilter;
+import edu.alumno.helena.api_rest_bd_pelicula.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity

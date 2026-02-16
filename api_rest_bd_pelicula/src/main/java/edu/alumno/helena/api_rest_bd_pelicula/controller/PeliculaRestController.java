@@ -1,20 +1,27 @@
 package edu.alumno.helena.api_rest_bd_pelicula.controller;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.validation.annotation.Validated;
 
+import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.ListadoRespuestaFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationRequest;
@@ -25,15 +32,6 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaCreate;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaUpdate;
-import edu.alumno.helena.api_rest_bd_pelicula.exception.ApiError;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.PeliculaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,60 +39,49 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 
-
-@Tag(name = "Peliculas", description = "CRUD y consultas de peliculas")
 @RestController //Indica que esta clase es un controlador web
 @RequestMapping("/api/v1/") //defineix el cami base 
 @Validated
 public class PeliculaRestController {
+    @Autowired
+    private PeliculaService peliculaService;
 
-    private final PeliculaService peliculaService;
-    private final PaginationRequestConverter paginationRequestConverter;
-    private final PaginationFactory paginationFactory;
+    @Autowired
+    private PaginationRequestConverter paginationRequestConverter;
 
-    public PeliculaRestController(PeliculaService peliculaService,
-            PaginationRequestConverter paginationRequestConverter,
-            PaginationFactory paginationFactory) {
-        this.peliculaService = peliculaService;
-        this.paginationRequestConverter = paginationRequestConverter;
-        this.paginationFactory = paginationFactory;
-    }
-
+    @Autowired
+    private PaginationFactory paginationFactory;
+   
 
     @GetMapping("/peliculas")
-    @Operation(summary = "Listar peliculas", description = "Lista paginada con filtro por nombre")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Listado correcto"),
-        @ApiResponse(responseCode = "400", description = "Parametros invalidos",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "BadRequest", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Campo sort no valido: campoInexistente\",\"path\":\"/api/v1/peliculas\"}")))
-    })
-    public ResponseEntity<ListadoRespuesta<PeliculaList>> getAllPeliculas(
-        
-            @RequestParam(required = false) String nombre,
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "3") @Min(1) int size,
-            @RequestParam(defaultValue = "id,asc") String[] sort) {
-
-        // Campos permitidos para ordenar
-        Set<String> allowedSort = Set.of("id", "titulo", "año", "duracion");
-        PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
-        // Paginacion + ordenacion con validacion
-        Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
-
-        PaginaDto<PeliculaList> paginaPeliculaList;
-        if (nombre != null && !nombre.isBlank()) {
-            // Filtro simple por titulo
-            paginaPeliculaList = peliculaService.findByNombreContaining(nombre, pageable);
-        } else {
-            paginaPeliculaList = peliculaService.findAllPagePeliculaList(pageable);
+        @Operation(summary = "Listar peliculas", description = "Lista paginada con filtro por nombre")
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Listado correcto"),
+            @ApiResponse(responseCode = "400", description = "Parametros invalidos",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ApiError.class))
+            )
+        })
+        public ResponseEntity<ListadoRespuesta<PeliculaList>> getAllPeliculas(
+                @RequestParam(required = false) String nombre,
+                @RequestParam(defaultValue = "0") @Min(0) int page,
+                @RequestParam(defaultValue = "3") @Min(1) int size,
+                @RequestParam(defaultValue = "id,asc") String[] sort) {
+            Set<String> allowedSort = Set.of("id", "titulo", "año", "duracion");
+            PaginationRequest paginationRequest = paginationRequestConverter.fromParams(page, size, sort);
+            Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
+            PaginaDto<PeliculaList> paginaPeliculaList;
+            if (nombre != null && !nombre.isBlank()) {
+                paginaPeliculaList = peliculaService.findByNombreContaining(nombre, pageable);
+            } else {
+                paginaPeliculaList = peliculaService.findAllPagePeliculaList(pageable);
+            }
+            return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaPeliculaList));
         }
-        
-        return ResponseEntity.ok(ListadoRespuestaFactory.fromPagina(paginaPeliculaList));
-    }
 
 
 
@@ -121,14 +108,13 @@ public class PeliculaRestController {
         @ApiResponse(responseCode = "200", description = "Listado correcto"),
         @ApiResponse(responseCode = "400", description = "Parametros invalidos",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ApiError.class),
-                examples = @ExampleObject(name = "BadRequest", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Direccion de orden no valida: descx\",\"path\":\"/api/v1/peliculas/orden/descx\"}")))
+                schema = @Schema(implementation = ApiError.class))
+        )
     })
-    @NonNull  
-    public Collection<PeliculaList> getPeliculaListOrderByTitulo(
+    public ResponseEntity<List<PeliculaList>> getPeliculaListOrderByTitulo(
             @PathVariable("direccionOrden") @NonNull String direccionOrden) {
-        // Ordena por titulo segun la direccion indicada
-        return peliculaService.findAllPeliculaList(Sort.by(Direction.fromString(direccionOrden), "titulo"));
+        List<PeliculaList> lista = peliculaService.findAllPeliculaList(Sort.by(Direction.fromString(direccionOrden), "titulo"));
+        return ResponseEntity.ok(lista);
     }
 
 
@@ -137,9 +123,9 @@ public class PeliculaRestController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Listado correcto")
     })
-    public ResponseEntity<Collection<PeliculaList>> getAllPeliculasNoPage() {
-        // Lista completa sin paginacion
-        return ResponseEntity.ok(peliculaService.findAllPeliculaList());
+    public ResponseEntity<List<PeliculaList>> getAllPeliculasNoPage() {
+        List<PeliculaList> lista = peliculaService.findAllPeliculaList();
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/peliculas/director/{directorId}")
@@ -151,10 +137,10 @@ public class PeliculaRestController {
                 schema = @Schema(implementation = ApiError.class),
                 examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Director no encontrado: 999\",\"path\":\"/api/v1/peliculas/director/999\"}")))
     })
-    public ResponseEntity<Collection<PeliculaList>> getPeliculasByDirector(
+    public ResponseEntity<List<PeliculaList>> getPeliculasByDirector(
             @PathVariable @Positive Long directorId) {
-        // Devuelve solo peliculas del director
-        return ResponseEntity.ok(peliculaService.findPeliculasByDirector(directorId));
+        List<PeliculaList> lista = peliculaService.findPeliculasByDirector(directorId);
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/peliculas/year/{year}")
@@ -166,9 +152,9 @@ public class PeliculaRestController {
                 schema = @Schema(implementation = ApiError.class),
                 examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"No hay peliculas para el anio: 1900\",\"path\":\"/api/v1/peliculas/year/1900\"}")))
     })
-    public ResponseEntity<Collection<PeliculaList>> getPeliculasFromYear(@PathVariable @Min(1) Integer year) {
-        // Filtra por anio de estreno
-        return ResponseEntity.ok(peliculaService.findPeliculasFromYear(year));
+    public ResponseEntity<List<PeliculaList>> getPeliculasFromYear(@PathVariable @Min(1) Integer year) {
+        List<PeliculaList> lista = peliculaService.findPeliculasFromYear(year);
+        return ResponseEntity.ok(lista);
     }
 
     @PostMapping("/peliculas")
