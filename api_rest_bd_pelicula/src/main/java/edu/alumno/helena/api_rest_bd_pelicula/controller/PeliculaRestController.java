@@ -100,7 +100,7 @@ public class PeliculaRestController {
     })
     public ResponseEntity<PeliculaInfo> getPeliculaInfoById(
             @PathVariable(value = "id") @Positive Long id) throws RuntimeException {
-        // Busca y devuelve la pelicula
+        // Busca i torna la pelicula
         PeliculaInfo peliculaInfo = peliculaService.getPeliculaInfoById(id);
         return ResponseEntity.ok().body(peliculaInfo);
     }
@@ -175,7 +175,7 @@ public class PeliculaRestController {
                 examples = @ExampleObject(name = "Conflict", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":409,\"error\":\"Conflict\",\"message\":\"Violacion de integridad de datos\",\"path\":\"/api/v1/peliculas\"}")))
     })
     public ResponseEntity<PeliculaInfo> createPelicula(@Valid @RequestBody PeliculaCreate peliculaCreate) {
-        // Crea la pelicula y devuelve su info
+        // Crea la pelicula i torna la info
         PeliculaInfo savedPelicula = peliculaService.createPelicula(peliculaCreate);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPelicula);
     }
@@ -196,7 +196,7 @@ public class PeliculaRestController {
     public ResponseEntity<PeliculaInfo> updatePelicula(
             @PathVariable @Positive Long id,
             @Valid @RequestBody PeliculaUpdate peliculaUpdate) {
-        // Actualiza solo los campos recibidos
+        // Actualitza sols els camps obtinguts
         PeliculaInfo updatedPelicula = peliculaService.updatePelicula(id, peliculaUpdate);
         return ResponseEntity.ok(updatedPelicula);
     }
@@ -211,7 +211,7 @@ public class PeliculaRestController {
                 examples = @ExampleObject(name = "NotFound", value = "{\"timestamp\":\"2026-02-11T10:15:30\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Pelicula no encontrada: 999\",\"path\":\"/api/v1/peliculas/999\"}")))
     })
     public ResponseEntity<String> deletePelicula(@PathVariable @Positive Long id) {
-        // Elimina por id si existe
+        // Elimina por id si existeix
         peliculaService.deletePeliculaById(id);
         return ResponseEntity.ok("Pelicula eliminada");
     }
@@ -234,7 +234,7 @@ public class PeliculaRestController {
     }
 
     /**
-     * CONSULTAS AGRUPADAS - Estadísticas de películas
+     * CONSULTES AGRUPADES - Estadistiques de pelicules
      */
     
     @GetMapping("/peliculas/estadisticas/por-año")

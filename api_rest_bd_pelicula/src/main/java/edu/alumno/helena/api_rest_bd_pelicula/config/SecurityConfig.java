@@ -22,22 +22,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http
-            // API sin sesiones, solo token
+            // API sense sessions, sols token
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Login y documentacion Swagger abiertos
                 .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
-                // GET libres (consultas publicas)
+                // GET llibres (consultes públiques)
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                // POST/PUT/DELETE de peliculas, directores y generos requieren JWT
+                // POST/PUT/DELETE de pelicula, directores y generos requieren JWT
                 .requestMatchers(HttpMethod.POST, "/api/v1/peliculas", "/api/v1/directores", "/api/v1/generos").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/peliculas/**", "/api/v1/directores/**", "/api/v1/generos/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/peliculas/**", "/api/v1/directores/**", "/api/v1/generos/**").authenticated()
                 // Todo lo demas es publico
                 .anyRequest().permitAll()
             )
-            // JWT antes del filtro de usuario/clave
+            // JWT antes del filtre de usuari/clave
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -14,13 +14,13 @@ public class FiltroException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    // Constructor con detalle adicional
+    // Constructor amd detall adicional
     public FiltroException(String errorCode, String message, String details) {
         super(message + (details != null ? " - " + details : ""));
         this.errorCode = errorCode;
     }
 
-    // Constructor con causa
+    // Constructor amb la causa
     public FiltroException(String errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;

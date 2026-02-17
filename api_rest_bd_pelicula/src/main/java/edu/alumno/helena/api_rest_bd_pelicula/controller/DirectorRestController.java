@@ -46,7 +46,7 @@ public class DirectorRestController {
     private final PaginationFactory paginationFactory;
 
     /**
-     * Constructor para inyectar los servicios y helpers necesarios.
+     * Constructor per injectar els servicis i helpers necesaris
      */
     public DirectorRestController(DirectorService directorService, PaginationFactory paginationFactory) {
         this.directorService = directorService;
@@ -66,15 +66,15 @@ public class DirectorRestController {
             @RequestParam(defaultValue = "3") @Min(1) int size,
             @RequestParam(defaultValue = "id,asc") String[] sort) {
 
-        // Campos permitidos para ordenar
+        // Camps per ordenar
         Set<String> allowedSort = Set.of("id", "nombre", "nacionalidad");
         PaginationRequest paginationRequest = new PaginationRequest(page, size, sort);
-        // Paginacion + ordenacion con validacion
+        // Paginacio + ordeancio amb validacio
         Pageable pageable = paginationFactory.createPageable(paginationRequest, allowedSort);
 
         PaginaDto<DirectorList> paginaDirectorList;
         if (nombre != null && !nombre.isBlank()) {
-            // Filtro simple por nombre
+            // Filtre simple per nom
             paginaDirectorList = directorService.findByNombreContaining(nombre, pageable);
         } else {
             paginaDirectorList = directorService.findAllPageDirectorList(pageable);
@@ -96,7 +96,7 @@ public class DirectorRestController {
     })
     public ResponseEntity<DirectorInfo> getDirectorInfoById(
             @PathVariable(value = "id") @Positive Long id) throws RuntimeException {
-        // Busca y devuelve el director
+        // Busca i torna el director
         DirectorInfo directorInfo = directorService.getDirectorInfoById(id);
         return ResponseEntity.ok().body(directorInfo);
     }
@@ -134,7 +134,7 @@ public class DirectorRestController {
             @ApiResponse(responseCode = "404", description = "Director no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     public ResponseEntity<String> deleteDirector(@PathVariable @Positive Long id) {
-        // Elimina por id
+        // Elimina per id
         directorService.deleteDirectorById(id);
         return ResponseEntity.ok("Director eliminado");
     }
@@ -157,7 +157,7 @@ public class DirectorRestController {
     }
 
     /**
-     * CONSULTAS AGRUPADAS - Estadísticas de directores
+     * CONSULTES AGRUPADES - Estadístiques de directors
      */
     
     @GetMapping("/directores/estadisticas")

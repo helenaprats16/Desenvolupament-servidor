@@ -24,7 +24,7 @@ public interface DirectorRepository extends JpaRepository<DirectorDb,Long>, JpaS
 
     Page<DirectorDb> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
     
-    // Consulta agrupada: Estadísticas de directores con conteo de películas
+    // Consulta agrupada: Estadistiques de directors en content de pelicules
     @Query("SELECT new edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorEstadistica(" +
            "d.id, d.nombre, d.nacionalidad, COUNT(p.id)) " +
            "FROM DirectorDb d LEFT JOIN d.peliculasInfoDb p " +
@@ -32,7 +32,7 @@ public interface DirectorRepository extends JpaRepository<DirectorDb,Long>, JpaS
            "ORDER BY COUNT(p.id) DESC")
     List<DirectorEstadistica> findDirectoresConEstadisticas();
     
-    // Consulta agrupada: Directores con más de X películas
+    // Consulta agrupada: Directors amb mes de  X películes
     @Query("SELECT new edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorEstadistica(" +
            "d.id, d.nombre, d.nacionalidad, COUNT(p.id)) " +
            "FROM DirectorDb d LEFT JOIN d.peliculasInfoDb p " +

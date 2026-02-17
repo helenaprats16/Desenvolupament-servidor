@@ -9,7 +9,7 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfo;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfoNombre;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaList;
 
-// Usar Spring para inyección del mapper
+// Usar Spring per a injecció del mapper
 @Mapper(componentModel = "spring")
 public interface PeliculaMapper {
 

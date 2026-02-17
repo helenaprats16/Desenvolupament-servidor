@@ -82,11 +82,11 @@ public class PeliculaServiceImpl implements PeliculaService {
         Page<PeliculaDb> paginaPeliculaDb = peliculaRepository.findAll(pagina);
         return new PaginaDto<PeliculaList>(
                 paginaPeliculaDb.getNumber(), // numero de pagina solicitada
-                paginaPeliculaDb.getSize(), // tamaño de la pagina
-                paginaPeliculaDb.getTotalElements(), // total de elementos deveultos por la consulta sin paginacion
-                paginaPeliculaDb.getTotalPages(), // total de paginas teniendo en cuenta el tamaño de cada pagina
-                peliculaMapper.peliculasToPeliculaList(paginaPeliculaDb.getContent()), // lista de elemento
-                paginaPeliculaDb.getSort());// ordenacio de la consulta
+                paginaPeliculaDb.getSize(), // tamany de la pagina
+                paginaPeliculaDb.getTotalElements(), // total d'elements retornats per la consulta sense paginació
+                paginaPeliculaDb.getTotalPages(), // total de pàgines tenint en compte la mida de cada pàgina
+                peliculaMapper.peliculasToPeliculaList(paginaPeliculaDb.getContent()), // llista d'elements
+                paginaPeliculaDb.getSort());// ordenació de la consulta
     }
 
     @Override

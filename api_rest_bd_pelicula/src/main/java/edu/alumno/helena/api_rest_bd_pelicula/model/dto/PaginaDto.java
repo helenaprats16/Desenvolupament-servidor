@@ -16,12 +16,12 @@ import lombok.Setter;
 public class PaginaDto<T> {
 
     int number;//num de pagina solicitada
-    int size; //tamaño de la pagina
-    long totalElements; //total de elementos devueltos por la consulta sin paginacion
-    int totalPages; //total paginas teniendo en cuenta el tamaño de cada pagina
+    int size; //tamanyo de la pagina
+    long totalElements; //total de elements tornatas per la consulta sense paginacio
+    int totalPages; //total paginas tenint en conter el tamany de cada pagina
 
 
-    List<T> content; //lista de elementos
+    List<T> content; //llista d'elements
     Sort sort;
 
 

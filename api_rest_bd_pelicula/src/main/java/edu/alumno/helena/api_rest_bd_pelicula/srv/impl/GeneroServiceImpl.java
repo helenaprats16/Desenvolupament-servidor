@@ -121,10 +121,10 @@ public class GeneroServiceImpl implements GeneroService {
 
     @Override
     public GeneroInfo createGenero(GeneroCreate generoCreate) {
-        // Comprobamos si ya existe un género con el mismo nombre (asumiendo unicidad por nombre)
+        // Comprovem si existeix un gènere amb el mateix nom (assumint unicitat per nom)
         boolean exists = !generoRepository.findByNombreContainingIgnoreCase(generoCreate.getNombre(), org.springframework.data.domain.Pageable.unpaged()).isEmpty();
         if (exists) {
-            throw new EntityAlreadyExistsException("GENERO_ALREADY_EXISTS", "El género ya existe con nombre: " + generoCreate.getNombre());
+            throw new EntityAlreadyExistsException("GENERO_ALREADY_EXISTS", "El gènere ja existeix amb nom: " + generoCreate.getNombre());
         }
         GeneroDb generoDb = generoMapper.generoCreateToGeneroDb(generoCreate);
         GeneroDb saved = generoRepository.save(generoDb);
@@ -134,7 +134,7 @@ public class GeneroServiceImpl implements GeneroService {
     @Override
     public GeneroInfo updateGenero(Long id, GeneroUpdate generoUpdate) {
         GeneroDb generoDb = generoRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("GENERO_NOT_FOUND", "Genero no encontrado: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("GENERO_NOT_FOUND", "Gènere no trobat: " + id));
         if (generoUpdate.getNombre() != null) {
             generoDb.setNombre(generoUpdate.getNombre());
         }
@@ -150,7 +150,7 @@ public class GeneroServiceImpl implements GeneroService {
         if (generoRepository.existsById(id)) {
             generoRepository.deleteById(id);
         }
-        // Si no existe, simplemente no hace nada (idempotente)
+        // Si no existeix, simple no fa res (idempotent)
     }
 
   

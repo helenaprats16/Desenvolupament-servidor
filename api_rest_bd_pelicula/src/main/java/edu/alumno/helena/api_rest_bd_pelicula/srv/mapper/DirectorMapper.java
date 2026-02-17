@@ -13,7 +13,7 @@ import edu.alumno.helena.api_rest_bd_pelicula.model.dto.DirectorList;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculaInfoNombre;
 
 
-// Usar Spring para inyección del mapper
+// Usar Spring per a injecció del mapper
 @Mapper(componentModel = "spring", uses = {PeliculaMapper.class})
 public interface DirectorMapper {
 

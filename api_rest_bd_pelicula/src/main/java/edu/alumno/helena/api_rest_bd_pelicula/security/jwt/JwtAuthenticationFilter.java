@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Extraemos el token sin "Bearer "
+        // Extragem el token sense "Bearer "
         String token = authHeader.substring(7);
         if (token.isBlank()) {
             filterChain.doFilter(request, response);
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractUsername(token);
         } catch (JwtException | IllegalArgumentException ex) {
-            // Token malformado o invalido: seguimos sin autenticar para evitar 500
+            // Token mal format o invalid: seguim sense autenticar per evitar 500
             filterChain.doFilter(request, response);
             return;
         }

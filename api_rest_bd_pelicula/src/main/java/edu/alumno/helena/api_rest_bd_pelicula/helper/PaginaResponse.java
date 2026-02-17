@@ -28,5 +28,5 @@ public class PaginaResponse<T> {
         this.ordenaciones = ordenaciones;
     }
 
-    // getters y setters...
+    
 }

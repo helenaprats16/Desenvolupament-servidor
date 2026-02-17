@@ -22,7 +22,7 @@ public class JwtService {
     private long expirationMs;
 
     public String generateToken(String username) {
-        // Token simple con subject y expiracion
+        // Token simple amb subject i expiracio
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
 
@@ -41,7 +41,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token, String username) {
         String subject = extractUsername(token);
-        // El token es valido si pertenece al usuario y no expiro
+        // El token es valid si perteneix al usuari i no expira
         return subject != null && subject.equals(username) && !isTokenExpired(token);
     }
 
@@ -50,7 +50,7 @@ public class JwtService {
     }
 
     private Claims getClaims(String token) {
-        // Parseo con la misma clave usada para firmar
+        // Parseig amb la mateixa clau usada per signar
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build()
@@ -59,7 +59,7 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        // Usamos el texto tal cual para no complicar con Base64
+        // Utilitzant el text tal cual per no complicar amb Base64
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }

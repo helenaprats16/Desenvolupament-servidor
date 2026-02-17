@@ -1,5 +1,8 @@
 package edu.alumno.helena.api_rest_bd_pelicula.helper;
 
+import lombok.Data;
+
+@Data
 public class PaginationRequest {
 
     private final int page;
