@@ -132,7 +132,7 @@ public class PeliculaServiceImpl implements PeliculaService {
 
     @Override
     public List<PeliculaList> findPeliculasByDirector(Long directorId) {
-
+        dependencyResolver.requireDirector(directorId);
         List<PeliculaDb> peliculasDb = peliculaRepository.findByDirectorId(directorId);
         return peliculaMapper.peliculasToPeliculaList(peliculasDb);
     }
@@ -185,10 +185,10 @@ public class PeliculaServiceImpl implements PeliculaService {
   
     @Override
     public void deletePeliculaById(Long id) {
-        if (peliculaRepository.existsById(id)) {
-            peliculaRepository.deleteById(id);
+        if (!peliculaRepository.existsById(id)) {
+            throw new EntityNotFoundException("PELICULA_NOT_FOUND", "Pelicula no encontrada: " + id);
         }
-        // Si no existe, simplemente no hace nada (idempotente)
+        peliculaRepository.deleteById(id);
     }
 
     @Override

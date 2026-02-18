@@ -31,8 +31,8 @@ CREATE TABLE pelicula (
     sinopsis TEXT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (director_id) REFERENCES director(id) ON DELETE CASCADE,
-    FOREIGN KEY (genero_id) REFERENCES genero(id) ON DELETE CASCADE
+    FOREIGN KEY (director_id) REFERENCES director(id),
+    FOREIGN KEY (genero_id) REFERENCES genero(id)
 );
 
 CREATE TABLE valoracion (
@@ -44,8 +44,8 @@ CREATE TABLE valoracion (
     fecha_valoracion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     likes INT DEFAULT 0,
     
-    FOREIGN KEY (pelicula_id) REFERENCES pelicula(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+    FOREIGN KEY (pelicula_id) REFERENCES pelicula(id),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
 

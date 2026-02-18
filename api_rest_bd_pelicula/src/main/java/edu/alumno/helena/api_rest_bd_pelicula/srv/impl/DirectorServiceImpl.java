@@ -140,10 +140,10 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public void deleteDirectorById(Long id) {
-        if (directorRepository.existsById(id)) {
-            directorRepository.deleteById(id);
+        if (!directorRepository.existsById(id)) {
+            throw new EntityNotFoundException("DIRECTOR_NOT_FOUND", "Director no encontrado: " + id);
         }
-        // Si no existe, simplemente no hace nada (idempotente)
+        directorRepository.deleteById(id);
     }
 
     @Override

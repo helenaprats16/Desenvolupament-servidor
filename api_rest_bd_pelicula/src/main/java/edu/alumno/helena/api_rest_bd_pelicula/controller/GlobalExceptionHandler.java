@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -95,6 +96,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleGeneric(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", ex.getMessage(),
                 request.getRequestURI(), null);
+    }
+
+    // Respuesta con el status adecuado cuando Spring ya marca un ResponseStatusException
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiError> handleResponseStatus(ResponseStatusException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        String message = ex.getReason() != null ? ex.getReason() : ex.getMessage();
+        return buildError(status, status.name(), message, request.getRequestURI(), null);
     }
 
     // Constructor de resposta d'error

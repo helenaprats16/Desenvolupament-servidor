@@ -35,6 +35,7 @@ Content-Type: application/json
 
 ###
 ## Crear director (POST)
+# @name createDirector
 POST http://localhost:8090/api/v1/directores HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
@@ -62,7 +63,7 @@ Content-Type: application/json
 
 ###
 ## deleteDirector
-DELETE http://localhost:8090/api/v1/directores/1 HTTP/1.1
+DELETE http://localhost:8090/api/v1/directores/2 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
@@ -70,6 +71,23 @@ Authorization: Bearer {{login.response.body.$.token}}
 ## getDirectores con filtro por nombre
 GET http://localhost:8090/api/v1/directores?nombre=a&page=0&size=5&sort=nombre,asc HTTP/1.1
 Content-Type: application/json
+
+###
+## searchDirectores (GET) filtros avanzados
+GET http://localhost:8090/api/v1/directores/search?filter=nombre:contiene:an&page=0&size=3&sort=nombre,asc HTTP/1.1
+Content-Type: application/json
+
+###
+## searchDirectores (POST) filtros avanzados
+POST http://localhost:8090/api/v1/directores/search HTTP/1.1
+Content-Type: application/json
+
+{
+	"filter": ["nombre:contiene:an"],
+	"page": 0,
+	"size": 3,
+	"sort": ["nombre,asc"]
+}
 
 
 
@@ -111,9 +129,27 @@ Content-Type: application/json
 GET http://localhost:8090/api/v1/peliculas/year/2002 HTTP/1.1
 Content-Type: application/json
 
+###
+## searchPeliculas (GET) filtros avanzados
+GET http://localhost:8090/api/v1/peliculas/search?filter=titulo:contiene:star&page=0&size=3&sort=titulo,asc HTTP/1.1
+Content-Type: application/json
+
+###
+## searchPeliculas (POST) filtros avanzados
+POST http://localhost:8090/api/v1/peliculas/search HTTP/1.1
+Content-Type: application/json
+
+{
+	"filter": ["titulo:contiene:star"],
+	"page": 0,
+	"size": 3,
+	"sort": ["titulo,asc"]
+}
+
 
 ###
 ## Crear pelicula (POST)
+# @name createPelicula
 POST http://localhost:8090/api/v1/peliculas HTTP/1.1
 Authorization: Bearer {{login.response.body.$.token}}
 Content-Type: application/json
@@ -130,7 +166,7 @@ Content-Type: application/json
 ###
 ## Actualizar pelicula (PUT)
 ## Cambia el id si quieres editar otra pelicula
-PUT http://localhost:8090/api/v1/peliculas/100 HTTP/1.1
+PUT http://localhost:8090/api/v1/peliculas/2 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
@@ -142,7 +178,7 @@ Authorization: Bearer {{login.response.body.$.token}}
 ###
 ## deletePelicula
 ## Cambia el id si quieres borrar otra pelicula
-DELETE http://localhost:8090/api/v1/peliculas/41 HTTP/1.1
+DELETE http://localhost:8090/api/v1/peliculas/{{createPelicula.response.body.$.id}} HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
@@ -185,6 +221,7 @@ Content-Type: application/json
 
 ###
 ## Crear genero (POST)
+# @name createGenero
 POST http://localhost:8090/api/v1/generos HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
@@ -201,7 +238,7 @@ Content-Type: application/json
 
 ###
 ## getGeneroById
-GET http://localhost:8090/api/v1/generos/2 HTTP/1.1
+GET http://localhost:8090/api/v1/generos/1 HTTP/1.1
 Content-Type: application/json
 
 ###
@@ -216,7 +253,7 @@ Authorization: Bearer {{login.response.body.$.token}}
 
 ###
 ## deleteGenero
-DELETE http://localhost:8090/api/v1/generos/2 HTTP/1.1
+DELETE http://localhost:8090/api/v1/generos/9 HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
@@ -243,13 +280,27 @@ Content-Type: application/json
 
 ###
 ## ERROR 400: page negativo
-GET http://localhost:8090/api/v1/directores?page=-1 HTTP/1.1
+GET http://localhost:8090/api/v1/directores?page=-31 HTTP/1.1
 Content-Type: application/json
 
 ###
 ## ERROR 400: size 0
 GET http://localhost:8090/api/v1/peliculas?size=0 HTTP/1.1
 Content-Type: application/json
+
+###
+## ERROR 404: delete director no existe
+DELETE http://localhost:8090/api/v1/directores/99999 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+###
+## ERROR 409: violacion FK al borrar director con peliculas ---- EL director 8 ja esta borrat, borrar un altre per veuere l'error
+DELETE http://localhost:8090/api/v1/directores/8 HTTP/1.1 
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+
 
 
 
@@ -261,44 +312,48 @@ POST http://localhost:8090/api/v1/auth/register HTTP/1.1
 Content-Type: application/json
 
 {
-	"nombre": "Alumno Demo",
-	"email": "alumno.demo@email.com",
-	"username": "alumno",
+	"nombre": "Maria Alumna",
+	"email": "mariaalumna23.demo@email.com",
+	"username": "mariaalumna23",
 	"password": "1234"
 }
 
 ###
 ## LOGIN (JWT)
-
+# @name login
 POST http://localhost:8090/api/v1/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
-	"username": "alumno",
+	"username": "mariaalumna23",
 	"password": "1234"
 }
 
 ###
-## Crear pelicula con token (protegido)
+## Crear pelicula amb token (protegido)
 POST http://localhost:8090/api/v1/peliculas HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
 {
-	"titulo": "Pelicula con token",
-	"directorId": 18,
+	"titulo": "Magacascar 4",
+	"directorId": 20,
 	"generoId": 1,
 	"año": 2021,
 	"duracion": 110,
 	"sinopsis": "Solo se crea si hay JWT"
 }
 
+
+
+
+
 ###################################
 ###
 ## CONSULTES AGRUPADES - Estadistiques i agrupacions amb SQL (Part opcional)
 
 ###
-## Estadistiques de directores (COUNT de pelicules per director)
+## Estadistiques de directors (COUNT de pelicules per director)
 GET http://localhost:8090/api/v1/directores/estadisticas HTTP/1.1
 Content-Type: application/json
 
@@ -314,7 +369,7 @@ GET http://localhost:8090/api/v1/directores/estadisticas/minimo?minPeliculas=3 H
 Content-Type: application/json
 
 ###
-## Películas agrupadas por año (COUNT + AVG por año)
+## pelicules agrupades per any)
 GET http://localhost:8090/api/v1/peliculas/estadisticas/por-año HTTP/1.1
 Content-Type: application/json
 

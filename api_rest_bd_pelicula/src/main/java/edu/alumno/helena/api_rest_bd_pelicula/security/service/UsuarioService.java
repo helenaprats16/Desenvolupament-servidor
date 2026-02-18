@@ -25,7 +25,7 @@ public class UsuarioService {
             throw new EntityAlreadyExistsException("USER_ALREADY_EXISTS", "Ya existe un usuario con username: " + username);
         }
         String hashedPassword = passwordEncoder.encode(rawPassword);
-        Usuario usuario = new Usuario(nombre, email, username, hashedPassword);
+        Usuario usuario = new Usuario(null, nombre, email, username, java.time.LocalDateTime.now(), hashedPassword);
         return usuarioRepository.save(usuario);
     }
 }

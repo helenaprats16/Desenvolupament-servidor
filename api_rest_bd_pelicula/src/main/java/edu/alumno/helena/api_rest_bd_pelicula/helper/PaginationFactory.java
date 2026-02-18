@@ -35,7 +35,25 @@ public class PaginationFactory {
     }
 
     public Pageable createPageable(PeticionListadoFiltrado peticionListadoFiltrado) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPageable'");
+        int page = peticionListadoFiltrado.getPage();
+        int size = peticionListadoFiltrado.getSize();
+
+        if (page < 0) {
+            throw new BadRequestException("PAGINATION_INVALID", "El parametro page no puede ser negativo");
+        }
+        if (size <= 0) {
+            throw new BadRequestException("PAGINATION_INVALID", "El parametro size debe ser mayor que 0");
+        }
+
+        String[] sort = peticionListadoFiltrado.getSortArray();
+        if (sort == null || sort.length == 0) {
+            return PageRequest.of(page, size);
+        }
+
+        try {
+            return PageRequest.of(page, size, PaginationHelper.createSort(sort, null));
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("SORT_FIELD_INVALID", ex.getMessage());
+        }
     }
 }

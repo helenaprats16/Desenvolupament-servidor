@@ -147,10 +147,10 @@ public class GeneroServiceImpl implements GeneroService {
 
     @Override
     public void deleteGeneroById(Long id) {
-        if (generoRepository.existsById(id)) {
-            generoRepository.deleteById(id);
+        if (!generoRepository.existsById(id)) {
+            throw new EntityNotFoundException("GENERO_NOT_FOUND", "Genero no encontrado: " + id);
         }
-        // Si no existeix, simple no fa res (idempotent)
+        generoRepository.deleteById(id);
     }
 
   
