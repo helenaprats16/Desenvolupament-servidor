@@ -170,13 +170,13 @@ public class GeneroRestController {
      */
     @Operation(summary = "Elimina un gènere")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Eliminat", content = @Content),
+        @ApiResponse(responseCode = "200", description = "Genere eliminat", content = @Content),
         @ApiResponse(responseCode = "404", description = "No trobat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class)))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+    public ResponseEntity<String> delete(@PathVariable @Positive Long id) {
         generoService.deleteGeneroById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Genero eliminado");
     }
 
     @GetMapping("/search")

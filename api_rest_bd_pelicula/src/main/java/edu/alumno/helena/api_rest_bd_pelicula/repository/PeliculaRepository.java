@@ -33,6 +33,8 @@ public interface PeliculaRepository extends JpaRepository<PeliculaDb,Long>, JpaS
 
     @NonNull
     List<PeliculaDb> findByAño(Integer año);
+
+       void deleteByGeneroId(Long generoId);
     
     // Consulta agrupada: Películas por año con estadísticas
     @Query("SELECT new edu.alumno.helena.api_rest_bd_pelicula.model.dto.PeliculasPorAño(" +

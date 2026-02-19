@@ -12,8 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.alumno.helena.api_rest_bd_pelicula.exception.PeliculaNotFoundException;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.FiltroException;
@@ -46,16 +48,19 @@ public class PeliculaServiceImpl implements PeliculaService {
     private final PeliculaMapper peliculaMapper;
     private final PeliculaEntityFactory peliculaEntityFactory;
     private final PeliculaDependencyResolver dependencyResolver;
+    private final JdbcTemplate jdbcTemplate;
     private final PaginationFactory paginationFactory;
     private final PeticionListadoFiltradoConverter peticionConverter;
 
     public PeliculaServiceImpl(PeliculaRepository peliculaRepository, PeliculaMapper peliculaMapper,
             PeliculaEntityFactory peliculaEntityFactory, PeliculaDependencyResolver dependencyResolver,
+            JdbcTemplate jdbcTemplate,
             PaginationFactory paginationFactory, PeticionListadoFiltradoConverter peticionConverter) {
         this.peliculaRepository = peliculaRepository;
         this.peliculaMapper = peliculaMapper;
         this.peliculaEntityFactory = peliculaEntityFactory;
         this.dependencyResolver = dependencyResolver;
+        this.jdbcTemplate = jdbcTemplate;
         this.paginationFactory = paginationFactory;
         this.peticionConverter = peticionConverter;
     }
@@ -184,10 +189,12 @@ public class PeliculaServiceImpl implements PeliculaService {
     }
   
     @Override
+    @Transactional
     public void deletePeliculaById(Long id) {
         if (!peliculaRepository.existsById(id)) {
-            throw new EntityNotFoundException("PELICULA_NOT_FOUND", "Pelicula no encontrada: " + id);
+            return;
         }
+        jdbcTemplate.update("DELETE FROM valoracion WHERE pelicula_id = ?", id);
         peliculaRepository.deleteById(id);
     }
 

@@ -1,0 +1,31 @@
+
+###################################
+###
+## CONSULTES AGRUPADES - Estadistiques i agrupacions amb SQL (Part opcional)
+
+###
+## Estadistiques de directors (COUNT de pelicules per director)
+GET http://localhost:8090/api/v1/directores/estadisticas HTTP/1.1
+Content-Type: application/json
+
+###
+## Directors com a minim de pelicules (GROUP BY + HAVING)
+## Filtra directors amb al menys 2 pelicules
+GET http://localhost:8090/api/v1/directores/estadisticas/minimo?minPeliculas=4 HTTP/1.1
+Content-Type: application/json
+
+###
+## Directors com a minim de películes
+GET http://localhost:8090/api/v1/directores/estadisticas/minimo?minPeliculas=3 HTTP/1.1
+Content-Type: application/json
+
+###
+## pelicules agrupades per any)
+GET http://localhost:8090/api/v1/peliculas/estadisticas/por-año HTTP/1.1
+Content-Type: application/json
+
+###
+## Pelicules agrupades per genere (COUNT + AVG por genere)
+GET http://localhost:8090/api/v1/peliculas/estadisticas/por-genero HTTP/1.1
+Content-Type: application/json
+

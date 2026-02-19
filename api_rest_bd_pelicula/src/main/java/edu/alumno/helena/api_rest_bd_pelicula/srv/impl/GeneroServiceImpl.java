@@ -9,8 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import edu.alumno.helena.api_rest_bd_pelicula.model.db.GeneroDb;
 import edu.alumno.helena.api_rest_bd_pelicula.model.dto.GeneroCreate;
@@ -23,6 +25,7 @@ import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginaResponse;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PaginationFactory;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltrado;
 import edu.alumno.helena.api_rest_bd_pelicula.repository.GeneroRepository;
+import edu.alumno.helena.api_rest_bd_pelicula.repository.PeliculaRepository;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.GeneroService;
 import edu.alumno.helena.api_rest_bd_pelicula.srv.mapper.GeneroMapper;
 import edu.alumno.helena.api_rest_bd_pelicula.helper.PeticionListadoFiltradoConverter;
@@ -33,15 +36,21 @@ public class GeneroServiceImpl implements GeneroService {
 
     private final GeneroRepository generoRepository;
     private final GeneroMapper generoMapper;
+    private final PeliculaRepository peliculaRepository;
+    private final JdbcTemplate jdbcTemplate;
     private final GeneroDependencyResolver dependencyResolver;
     private final PaginationFactory paginationFactory;
     private final PeticionListadoFiltradoConverter peticionConverter;
 
     public GeneroServiceImpl(GeneroRepository generoRepository, GeneroMapper generoMapper,
+            PeliculaRepository peliculaRepository,
+            JdbcTemplate jdbcTemplate,
             GeneroDependencyResolver dependencyResolver, PaginationFactory paginationFactory,
             PeticionListadoFiltradoConverter peticionConverter) {
         this.generoRepository = generoRepository;
         this.generoMapper = generoMapper;
+        this.peliculaRepository = peliculaRepository;
+        this.jdbcTemplate = jdbcTemplate;
         this.dependencyResolver = dependencyResolver;
         this.paginationFactory = paginationFactory;
         this.peticionConverter = peticionConverter;
@@ -146,10 +155,13 @@ public class GeneroServiceImpl implements GeneroService {
     }
 
     @Override
+    @Transactional
     public void deleteGeneroById(Long id) {
         if (!generoRepository.existsById(id)) {
-            throw new EntityNotFoundException("GENERO_NOT_FOUND", "Genero no encontrado: " + id);
+            return;
         }
+        jdbcTemplate.update("DELETE FROM valoracion WHERE pelicula_id IN (SELECT id FROM pelicula WHERE genero_id = ?)", id);
+        peliculaRepository.deleteByGeneroId(id);
         generoRepository.deleteById(id);
     }
 

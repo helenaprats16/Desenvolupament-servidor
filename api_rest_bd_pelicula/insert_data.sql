@@ -1,3 +1,8 @@
+TRUNCATE TABLE usuarios_roles, roles, genero, director, usuario, pelicula, valoracion;
+
+INSERT INTO roles (nombre) VALUES
+('ROLE_ADMIN'),
+('ROLE_USER');
 
 INSERT INTO genero (nombre, descripcion) VALUES 
 ('Acción', 'Películas con escenas dinámicas y mucha adrenalina'),
@@ -37,36 +42,48 @@ INSERT INTO director (nombre, nacionalidad, fecha_nacimiento) VALUES
 
 
 INSERT INTO usuario (nombre, email, username, password) VALUES
-('Ana García López', 'ana.garcia@email.com', 'anag', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Carlos Méndez Ruiz', 'carlos.mendez@email.com', 'carlosm', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('María Rodríguez Santos', 'maria.rodriguez@email.com', 'mariar', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Pedro Martínez Gómez', 'pedro.martinez@email.com', 'pedrom', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Laura Sánchez Pérez', 'laura.sanchez@email.com', 'lauras', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('David Fernández Castro', 'david.fernandez@email.com', 'davidf', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Elena Torres Navarro', 'elena.torres@email.com', 'elenat', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Javier Ruiz Díaz', 'javier.ruiz@email.com', 'javierr', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Sofía Herrera Molina', 'sofia.herrera@email.com', 'sofiah', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Daniel Castro Romero', 'daniel.castro@email.com', 'danielc', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Carmen Vargas Gil', 'carmen.vargas@email.com', 'carmenv', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Álvaro Jiménez Ortega', 'alvaro.jimenez@email.com', 'alvaroj', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Patricia Moreno Vega', 'patricia.moreno@email.com', 'patriciam', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Roberto Navarro Blanco', 'roberto.navarro@email.com', 'roberton', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Isabel Díaz Medina', 'isabel.diaz@email.com', 'isabeld', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Francisco Serrano Cruz', 'francisco.serrano@email.com', 'franciscos', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Beatriz Romero Sánchez', 'beatriz.romero@email.com', 'beatrizr', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Miguel Ángel Torres', 'miguel.torres@email.com', 'miguelat', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Cristina Molina Ruiz', 'cristina.molina@email.com', 'cristinam', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('José Luis Herrera', 'jose.herrera@email.com', 'joseluis', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Teresa Castro Méndez', 'teresa.castro@email.com', 'teresac', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Alejandro Vega Díaz', 'alejandro.vega@email.com', 'alejandrov', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Nuria Ortega Martínez', 'nuria.ortega@email.com', 'nuriao', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Manuel Blanco Sánchez', 'manuel.blanco@email.com', 'manuelb', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Raquel Medina Torres', 'raquel.medina@email.com', 'raquelm', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Sergio Gil Rodríguez', 'sergio.gil@email.com', 'sergiog', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Olga Cruz Herrera', 'olga.cruz@email.com', 'olgac', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Rubén Vega Castro', 'ruben.vega@email.com', 'rubenv', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Adriana Méndez Blanco', 'adriana.mendez@email.com', 'adrianam', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36'),
-('Marcos Ruiz Ortega', 'marcos.ruiz@email.com', 'marcosr', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5jG1QdPZXoqBYwygJyI072QtdgQ36');
+('Helena Prats Revert', 'helena@email.com', 'admin', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Carlos Méndez Ruiz', 'carlos.mendez@email.com', 'carlosm', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('María Rodríguez Santos', 'maria.rodriguez@email.com', 'mariar', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Pedro Martínez Gómez', 'pedro.martinez@email.com', 'pedrom', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Laura Sánchez Pérez', 'laura.sanchez@email.com', 'lauras', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('David Fernández Castro', 'david.fernandez@email.com', 'davidf', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Elena Torres Navarro', 'elena.torres@email.com', 'elenat', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Javier Ruiz Díaz', 'javier.ruiz@email.com', 'javierr', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Sofía Herrera Molina', 'sofia.herrera@email.com', 'sofiah', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Daniel Castro Romero', 'daniel.castro@email.com', 'danielc', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Carmen Vargas Gil', 'carmen.vargas@email.com', 'carmenv', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Álvaro Jiménez Ortega', 'alvaro.jimenez@email.com', 'alvaroj', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Patricia Moreno Vega', 'patricia.moreno@email.com', 'patriciam', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Roberto Navarro Blanco', 'roberto.navarro@email.com', 'roberton', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Isabel Díaz Medina', 'isabel.diaz@email.com', 'isabeld', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Francisco Serrano Cruz', 'francisco.serrano@email.com', 'franciscos', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Beatriz Romero Sánchez', 'beatriz.romero@email.com', 'beatrizr', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Miguel Ángel Torres', 'miguel.torres@email.com', 'miguelat', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Cristina Molina Ruiz', 'cristina.molina@email.com', 'cristinam', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('José Luis Herrera', 'jose.herrera@email.com', 'joseluis', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Teresa Castro Méndez', 'teresa.castro@email.com', 'teresac', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Alejandro Vega Díaz', 'alejandro.vega@email.com', 'alejandrov', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Nuria Ortega Martínez', 'nuria.ortega@email.com', 'nuriao', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Manuel Blanco Sánchez', 'manuel.blanco@email.com', 'manuelb', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Raquel Medina Torres', 'raquel.medina@email.com', 'raquelm', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Sergio Gil Rodríguez', 'sergio.gil@email.com', 'sergiog', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Olga Cruz Herrera', 'olga.cruz@email.com', 'olgac', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Rubén Vega Castro', 'ruben.vega@email.com', 'rubenv', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Adriana Méndez Blanco', 'adriana.mendez@email.com', 'adrianam', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC'),
+('Marcos Ruiz Ortega', 'marcos.ruiz@email.com', 'marcosr', '$2a$10$nCOnsvVWpUL04flv1ApuC./AHbrsqBzxkff3nKf9X3GXsIn6TZxlC');
+
+INSERT INTO usuarios_roles (idUsuario, idRol)
+SELECT u.id, r.id
+FROM usuario u
+CROSS JOIN roles r
+WHERE r.nombre = 'ROLE_USER';
+
+INSERT INTO usuarios_roles (idUsuario, idRol)
+SELECT u.id, r.id
+FROM usuario u
+JOIN roles r ON r.nombre = 'ROLE_ADMIN'
+WHERE u.username = 'admin';
 
 
 INSERT INTO pelicula (titulo, director_id, genero_id, año, duracion_min, sinopsis) VALUES
